@@ -205,8 +205,146 @@ void CPU::decodeAndExecute(uint8_t opcode) {
         case 0x51: // LD D, C
             D = C;
             break;
+        case 0x52: // LD D, D
+            D = D;
+            break;
+        case 0x53: // LD D, E
+            D = E;
+            break;
+        case 0x54: // LD D, H
+            D = H;
+            break;
+        case 0x55: // LD D, L
+            D = L;
+            break;
+        case 0x56: // LD D, [HL]
+            D = memory[(H << 8) | L];
+            break;
+        case 0x57: // LD D, A
+            D = A;
+            break;
+        case 0x58: // LD E, B
+            E = B;
+            break;
+        case 0x59: // LD E, C
+            E = C;
+            break;
+        case 0x5A: // LD E, D
+            E = D;
+            break;
+        case 0x5B: // LD E, E
+            E = E;
+            break;
+        case 0x5C: // LD E, H
+            E = H;
+            break;
+        case 0x5D: // LD E, L
+            E = L;
+            break;
+        case 0x5E: // LD E, [HL]
+            E = memory[(H << 8) | L];
+            break;
+        case 0x5F: // LD E, A
+            E = A;
+            break;
+        
+        case 0x60: // LD H, B
+            H = B;
+            break;
+        case 0x61: // LD H, C
+            H = C;
+            break;
+        case 0x62: // LD H, D
+            H = D;
+            break;
+        case 0x63: // LD H, E
+            H = E;
+        case 0x64: // LD H, H
+            H = H;
+            break;
+        case 0x65: // LD H, L
+            H = L;
+            break;
+        case 0x66: // LD H, [HL]
+            H = memory[(H << 8) | L];
+            break;
+        case 0x67: // LD H, A
+            H = A;
+            break;
+        case 0x68: // LD L, B
+            L = B;
+            break;
+        case 0x69: // LD L, C
+            L = C;
+            break;
+        case 0x6A: // LD L, D
+            L = D;
+            break;
+        case 0x6B: // LD L, E
+            L = E;
+            break;
+        case 0x6C: // LD L, H
+            L = H;
+            break;
+        case 0x6D: // LD L, L
+            L = L;
+            break;
+        case 0x6E: // LD L, [HL]
+            L = memory[(H << 8) | L];
+            break;
+        case 0x6F: // LD L, A
+            L = A;
+            break;
 
-
+        case 0x70: // LD [HL], B
+            memory[(H << 8) | L] = B;
+            break;
+        case 0x71: // LD [HL], C
+            memory[(H << 8) | L] = C;
+            break;
+        case 0x72: // LD [HL], D
+            memory[(H << 8) | L] = D;
+            break;
+        case 0x73: // LD [HL], E
+            memory[(H << 8) | L] = E;
+            break;
+        case 0x74: // LD [HL], H
+            memory[(H << 8) | L] = H;
+            break;
+        case 0x75: // LD [HL], L
+            memory[(H << 8) | L] = L;
+            break;
+        case 0x76: // HALT
+            halted = true;
+            break;
+        case 0x77: // LD [HL], A
+            memory[(H << 8) | L] = A;
+            break;
+        case 0x78: // LD A, B
+            A = B;
+            break;
+        case 0x79: // LD A, C
+            A = C;
+            break;
+        case 0x7A: // LD A, D
+            A = D;
+            break;
+        case 0x7B: // LD A, E
+            A = E;
+            break;
+        case 0x7C: // LD A, H
+            A = H;
+            break;
+        case 0x7D: // LD A, L
+            A = L;
+            break;
+        case 0x7E: // LD A, [HL]
+            A = memory[(H << 8) | L];
+            break;
+        case 0x7F: // LD A, A
+            A = A;
+            break;
+//
         default:
             std::cout << "Unknown opcode: " << std::hex << (int)opcode << std::endl;
             break;
