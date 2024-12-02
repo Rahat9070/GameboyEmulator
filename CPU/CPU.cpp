@@ -31,7 +31,7 @@ void CPU::decodeAndExecute(uint8_t opcode) {
     switch (opcode) {
         case 0x00: // NOP
             break;
-        case 0x01: // LD BC, d16
+        case 0x01: // LD BC, n16
             C = memory[PC++];
             B = memory[PC++];
             break;
@@ -56,7 +56,7 @@ void CPU::decodeAndExecute(uint8_t opcode) {
             setSubtractFlag(true);
             setHalfCarryFlag((B & 0x0F) == 0x0F);
             break;
-        case 0x06: // LD B, d8
+        case 0x06: // LD B, n8
             B = memory[PC++];
             break;
         case 0x07: // RLCA (Rotate Left Circular A)
@@ -148,6 +148,60 @@ void CPU::decodeAndExecute(uint8_t opcode) {
             D = memory[PC++];
             break;
         case 0x17: // RLA (Rotate Left A)
+            uint8_t msb = (A & 0x80) >> 7;
+            uint8_t carry = getCarryFlag() ? 1 : 0;
+            A = (A << 1) | carry;
+            setCarryFlag(msb);
+            setZeroFlag(false);
+            setSubtractFlag(false);
+            setHalfCarryFlag(false);
+            break;
+        case 0x18: // JR e8
+            int8_t offset = static_cast<int8_t>(memory[PC++]);
+            PC += offset;
+            break;
+        case 0x19: // ADD HL, DE
+            uint16_t hl = memory[(H << 8) | L];
+            uint16_t de = memory[(D << 8) | E];
+            uint32_t result = hl + de;
+            H = (result >> 8) & 0xFF;
+            L = result & 0xFF;
+            setSubtractFlag(false);
+            setHalfCarryFlag(((hl & 0x0FFF) + (de & 0x0FFF)) > 0x0FFF);
+            setCarryFlag(result > 0xFFFF);
+            break;
+        case 0x1A: // LD A, [DE]
+            A = memory[(D << 8) | E];
+            break;
+        case 0x1B: // DEC DE
+            uint16_t de = memory[(D << 8) | E];
+            de--;
+            D = (result >> 8) & 0xFF;
+            E = result & 0xFF;
+            break;
+        case 0x1C: // INC E
+            E++;
+            setZeroFlag(E == 0);
+            setSubtractFlag(false);
+            setHalfCarryFlag((E & 0x0F) == 0);
+            break;
+        case 0x1D: // DEC E
+            E--;
+            setZeroFlag(E == 0);
+            setSubtractFlag(true);
+            setHalfCarryFlag((E & 0x0F) == 0x0F); 
+            break;
+        case 0x1E: // LD E, n8
+            E = memory[PC++];
+            break;
+        case 0x1F: // RRA
+            bool oldCarry = getCarryFlag();
+            bool newCarry = A & 0x01;
+            setCarryFlag(newCarry);
+            A = (A >> 1) | (oldCarry << 7);
+            setZeroFlag(false);
+            setSubtractFlag(false);
+            setHalfCarryFlag(false);
             break;
         
         case 0x40: // LD B, B
@@ -344,7 +398,138 @@ void CPU::decodeAndExecute(uint8_t opcode) {
         case 0x7F: // LD A, A
             A = A;
             break;
-//
+        
+        case 0x80: // ADD A, B
+            uint16_t result = A + B;
+            setZeroFlag((result & 0xFF) == 0);
+            setSubtractFlag(false);
+            setHalfCarryFlag(((A & 0x0F) + (B & 0x0F)) > 0x0F);
+            setCarryFlag(result > 0xFF);
+            A = result & 0xFF;
+            break;
+        case 0x81: // ADD A, C
+            uint16_t result = A + C;
+            setZeroFlag((result & 0xFF) == 0);
+            setSubtractFlag(false);
+            setHalfCarryFlag(((A & 0x0F) + (C & 0x0F)) > 0x0F);
+            setCarryFlag(result > 0xFF);
+            A = result & 0xFF;
+            break;
+        case 0x82: // ADD A, D
+            uint16_t result = A + D;
+            setZeroFlag((result & 0xFF) == 0);
+            setSubtractFlag(false);
+            setHalfCarryFlag(((A & 0x0F) + (D & 0x0F)) > 0x0F);
+            setCarryFlag(result > 0xFF);
+            A = result & 0xFF;
+            break;
+        case 0x83: // ADD A, E
+            uint16_t result = A + E;
+            setZeroFlag((result & 0xFF) == 0);
+            setSubtractFlag(false);
+            setHalfCarryFlag(((A & 0x0F) + (E & 0x0F)) > 0x0F);
+            setCarryFlag(result > 0xFF);
+            A = result & 0xFF;
+            break;
+        case 0x84: // ADD A, H
+            uint16_t result = A + H;
+            setZeroFlag((result & 0xFF) == 0);
+            setSubtractFlag(false);
+            setHalfCarryFlag(((A & 0x0F) + (H & 0x0F)) > 0x0F);
+            setCarryFlag(result > 0xFF);
+            A = result & 0xFF;
+            break;
+        case 0x85: // ADD A, L
+            uint16_t result = A + L;
+            setZeroFlag((result & 0xFF) == 0);
+            setSubtractFlag(false);
+            setHalfCarryFlag(((A & 0x0F) + (L & 0x0F)) > 0x0F);
+            setCarryFlag(result > 0xFF);
+            A = result & 0xFF;
+            break;
+        case 0x86: // ADD A, [HL]
+            uint16_t hl = (H << 8) | L;
+            uint8_t value = memory[hl];
+            uint16_t result = A + value;
+            setZeroFlag((result & 0xFF) == 0);
+            setSubtractFlag(false);
+            setHalfCarryFlag(((A & 0x0F) + (value & 0x0F)) > 0x0F);
+            setCarryFlag(result > 0xFF);
+            break;
+        case 0x87: // ADD A, A
+            uint16_t result = A + A;
+            setZeroFlag((result & 0xFF) == 0);
+            setSubtractFlag(false);
+            setHalfCarryFlag(((A & 0x0F) + (A & 0x0F)) > 0x0F);
+            setCarryFlag(result > 0xFF);
+            A = result & 0xFF;
+            break;
+        case 0x88: // ADC A, B
+            uint16_t result = A + B + (getCarryFlag() ? 1 : 0);
+            setZeroFlag((result & 0xFF) == 0);
+            setSubtractFlag(false);
+            setHalfCarryFlag(((A & 0x0F) + (B & 0x0F) + (getCarryFlag() ? 1 : 0)) > 0x0F);
+            setCarryFlag(result > 0xFF);
+            A = result & 0xFF;   
+            break;
+        case 0x89: // ADC A, C
+            uint16_t result = A + C + (getCarryFlag() ? 1 : 0);
+            setZeroFlag((result & 0xFF) == 0);
+            setSubtractFlag(false);
+            setHalfCarryFlag(((A & 0x0F) + (C & 0x0F) + (getCarryFlag() ? 1 : 0)) > 0x0F);
+            setCarryFlag(result > 0xFF);
+            A = result & 0xFF;
+            break;
+        case 0x8A: // ADC A, D
+            uint16_t result = A + D + (getCarryFlag() ? 1 : 0);
+            setZeroFlag((result & 0xFF) == 0);
+            setSubtractFlag(false);
+            setHalfCarryFlag(((A & 0x0F) + (D & 0x0F) + (getCarryFlag() ? 1 : 0)) > 0x0F);
+            setCarryFlag(result > 0xFF);
+            A = result & 0xFF;
+            break;
+        case 0x8B: // ADC A, E
+            uint16_t result = A + E + (getCarryFlag() ? 1 : 0);
+            setZeroFlag((result & 0xFF) == 0);
+            setSubtractFlag(false);
+            setHalfCarryFlag(((A & 0x0F) + (E & 0x0F) + (getCarryFlag() ? 1 : 0)) > 0x0F);
+            setCarryFlag(result > 0xFF);
+            A = result & 0xFF;
+            break;
+        case 0x8C: // ADC A, H
+            uint16_t result = A + H + (getCarryFlag() ? 1 : 0);
+            setZeroFlag((result & 0xFF) == 0);
+            setSubtractFlag(false);
+            setHalfCarryFlag(((A & 0x0F) + (H & 0x0F) + (getCarryFlag() ? 1 : 0)) > 0x0F);
+            setCarryFlag(result > 0xFF);
+            A = result & 0xFF;
+            break;
+        case 0x8D: // ADC A, L
+            uint16_t result = A + L + (getCarryFlag() ? 1 : 0);
+            setZeroFlag((result & 0xFF) == 0);
+            setSubtractFlag(false);
+            setHalfCarryFlag(((A & 0x0F) + (L & 0x0F) + (getCarryFlag() ? 1 : 0)) > 0x0F);
+            setCarryFlag(result > 0xFF);
+            A = result & 0xFF;
+            break;
+        case 0x8E: // ADC A, [HL]
+            uint16_t hl = (H << 8) | L;
+            uint16_t result = A + hl + (getCarryFlag() ? 1 : 0);
+            setZeroFlag((result & 0xFF) == 0);
+            setSubtractFlag(false);
+            setHalfCarryFlag(((A & 0x0F) + (hl & 0x0F) + (getCarryFlag() ? 1 : 0)) > 0x0F);
+            setCarryFlag(result > 0xFF);
+            A = result & 0xFF;
+            break;
+        case 0x8F: // ADC A, A
+            uint16_t result = A + A + (getCarryFlag() ? 1 : 0);
+            setZeroFlag((result & 0xFF) == 0);
+            setSubtractFlag(false);
+            setHalfCarryFlag(((A & 0x0F) + (A & 0x0F) + (getCarryFlag() ? 1 : 0)) > 0x0F);
+            setCarryFlag(result > 0xFF);
+            A = result & 0xFF;
+            break;
+
         default:
             std::cout << "Unknown opcode: " << std::hex << (int)opcode << std::endl;
             break;
