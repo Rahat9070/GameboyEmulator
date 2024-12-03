@@ -11,7 +11,8 @@ public:
 
     bool halted = false;
     uint8_t A, B, C, D, E, H, L, F; 
-    uint16_t SP, PC;          
+    uint16_t SP, PC;  
+    uint32_t cycles;     
 
     std::array<uint8_t, 0x10000> memory;
 

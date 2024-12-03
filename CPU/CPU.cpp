@@ -10,6 +10,7 @@ void CPU::reset() {
     SP = 0xFFFE;
     PC = 0x0100;
     memory.fill(0); // Clear all memory
+    cycles = 0;
 }
 
 bool CPU::getZeroFlag() { return F & 0x80; }
@@ -144,6 +145,7 @@ void CPU::decodeAndExecute(uint8_t opcode) {
             setZeroFlag(D == 0);
             setSubtractFlag(true);
             setHalfCarryFlag((D & 0x0F) == 0x0F);
+            break;
         case 0x16: // LD D, n8
             D = memory[PC++];
             break;
@@ -204,6 +206,86 @@ void CPU::decodeAndExecute(uint8_t opcode) {
             setHalfCarryFlag(false);
             break;
         
+        case 0x20: // JR NZ, e8
+            int8_t offset = static_cast<int8_t>(memory[PC++]);
+            if (!getZeroFlag()) {
+                PC += offset;
+                cycles += 12;
+            } else {
+                cycles += 8;
+            }
+            break;
+        case 0x21: // LD HL, n16
+            L = memory[PC++];
+            H = memory[PC++];
+            break;
+        case 0x22: // LD [HL+], A
+            uint16_t hl = (H << 8) | L;
+            memory[hl] = A;
+            hl++;
+            H = (hl >> 8) & 0xFF;
+            L = hl & 0xFF;
+            break;
+        case 0x23: // INC HL
+            uint16_t hl = (H << 8) | L;
+            hl++;
+            H = (hl >> 8) & 0xFF;
+            L = hl & 0xFF;
+            break;
+        case 0x24: // INC H
+            H++;
+            setZeroFlag(H == 0);
+            setSubtractFlag(false);
+            setHalfCarryFlag((H & 0x0F) == 0);
+            break;
+        case 0x25: // DEC H
+            H--;
+            setZeroFlag(H == 0);
+            setSubtractFlag(true);
+            setHalfCarryFlag((H & 0x0F) == 0x0F);
+            break;
+        case 0x26: // LD H, n8
+            H = memory[PC++];
+            break;
+        case 0x27: // DAA
+            break;
+        case 0x28: // JR Z, e8
+            break;
+        case 0x29: // ADD HL, HL
+            uint16_t hl = (H << 8) | L;
+            uint32_t result = hl + hl;
+            break;
+        case 0x2A: // LD A, [HL+]
+            uint16_t hl = (H << 8) | L;
+            A = memory[hl];
+            hl++;
+            H = (hl >> 8) & 0xFF;
+            L = hl & 0xFF;
+            break;
+        case 0x2B: // DEC HL
+            uint16_t hl = (H << 8) | L;
+            hl--;
+            H = (hl >> 8) & 0xFF;
+            L = hl & 0xFF;
+            break;
+        case 0x2C: // INC L
+            L++;
+            setZeroFlag(L == 0);
+            setSubtractFlag(false);
+            setHalfCarryFlag((L & 0x0F) == 0);
+            break;
+        case 0x2D: // DEC L
+            L--;
+            setZeroFlag(L == 0);
+            setSubtractFlag(true);
+            setHalfCarryFlag((L & 0x0F) == 0x0F);
+            break;
+        case 0x2E: // LD L, n8
+            L = memory[PC++];
+            break;
+        case 0x2F: // CPL
+            break;
+
         case 0x40: // LD B, B
             B = B & 0xFF;
             break;
@@ -528,6 +610,9 @@ void CPU::decodeAndExecute(uint8_t opcode) {
             setHalfCarryFlag(((A & 0x0F) + (A & 0x0F) + (getCarryFlag() ? 1 : 0)) > 0x0F);
             setCarryFlag(result > 0xFF);
             A = result & 0xFF;
+            break;
+        
+        case 0x90: // SUB A, B
             break;
 
         default:
