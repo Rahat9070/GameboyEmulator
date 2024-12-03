@@ -10,8 +10,8 @@ public:
     CPU();
 
     bool halted = false;
-    uint8_t A, B, C, D, E, H, L, F; 
-    uint16_t SP, PC;  
+    uint8_t A, B, C, D, E, H, L, F; // Registers
+    uint16_t SP, PC;  // Stack Pointer & Program Counter
     uint32_t cycles;     
 
     std::array<uint8_t, 0x10000> memory;
@@ -33,6 +33,10 @@ public:
 private:
     void fetch(); // opcode
     void decodeAndExecute(uint8_t opcode);
+    void additionFlags(uint8_t register1, uint8_t value, uint16_t result);
+    void subtractionFlags(uint8_t register1, uint8_t value, uint16_t result);
+    void andFlags(uint8_t result);
+    void orFlags(uint8_t result);
 };
 
 #endif
