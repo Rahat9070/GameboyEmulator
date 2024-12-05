@@ -33,6 +33,9 @@ public:
 private:
     void fetch(); // opcode
     void decodeAndExecute(uint8_t opcode);
+    void executeCBInstruction(uint8_t cb_opcode);
+    void incrementFlags(uint8_t register1);
+    void decrementFlags(uint8_t register1);
     void additionFlags(uint8_t register1, uint8_t value, uint16_t result);
     void subtractionFlags(uint8_t register1, uint8_t value, uint16_t result);
     void andFlags(uint8_t result);
