@@ -29,10 +29,12 @@ public:
     void reset();     
     void executeInstruction();
     void handleInterrupts();
+    
+    void decodeAndExecute(uint8_t opcode);
+
 
 private:
     void fetch(); // opcode
-    void decodeAndExecute(uint8_t opcode);
     void executeCBInstruction(uint8_t cb_opcode);
     void incrementFlags(uint8_t register1);
     void decrementFlags(uint8_t register1);
