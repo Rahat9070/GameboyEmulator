@@ -3,9 +3,7 @@
 
 int main() {
     CPU cpu;
-    uint8_t opcode = 0x15;
-    std::cout << cpu.D << "\n";
-    cpu.decodeAndExecute(opcode);
-    std::cout << cpu.D << "\n";
+    uint8_t opcode = 0xD6;
+   cpu.decodeAndExecute(opcode);
     return 0;
 }

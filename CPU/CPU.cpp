@@ -11,6 +11,7 @@ void CPU::reset() {
     PC = 0x0100;
     memory.fill(0); // Clear all memory
     cycles = 0;
+    halted = IME = false;
 }
 
 bool CPU::getZeroFlag() { return F & 0x80; }
@@ -994,7 +995,126 @@ void CPU::decodeAndExecute(uint8_t opcode) {
             memory[SP--] = low;
             PC = 0x08;
             break;
-        }
+        } case 0xD0: { // RET NC
+            if (!getCarryFlag()) {
+                uint16_t lowByte = memory[SP];
+                uint16_t highByte = memory[SP + 1];
+                uint16_t returnAddress = (highByte << 8) | lowByte;
+                SP += 2;
+                PC = returnAddress;
+            } else {
+                PC += 1;
+            }
+            break;
+        } case 0xD1: { // POP DE
+            E = memory[SP];
+            D = memory[SP + 1];
+            SP += 2;
+            break;
+        } case 0xD2: { // JP NC, a16
+            uint16_t address = memory[PC] | (memory[PC + 1] << 8);
+            PC += 2;
+            if (!getCarryFlag()) {
+                PC = address;
+                cycles += 16;
+            } else {
+                cycles += 12;
+            }
+            break;
+        } case 0xD4: { // CALL NC, a16
+            uint16_t address = memory[PC] | (memory[PC + 1] << 8);
+            PC += 2;
+            if (!getCarryFlag()) { 
+                memory[--SP] = (PC >> 8) & 0xFF;
+                memory[--SP] = PC & 0xFF;
+                PC = address;
+                cycles += 24;
+            } 
+            else {
+                cycles += 12;
+            }
+            break;
+        } case 0xD5: { // PUSH DE
+            memory[SP - 1] = D;
+            memory[SP - 2] = E;
+            SP -= 2;
+            break;
+        } case 0xD6: { // SUB A, n8
+            uint8_t value = memory[PC++];
+            uint16_t result = A - value;
+            subtractionFlags(A, value, result);
+            A = result & 0xFF;
+            break;
+        } case 0xD7: { // RST $10
+            uint8_t low = PC & 0xFF;
+            uint8_t high = (PC >> 8) & 0xFF;
+            SP--;
+            memory[SP--] = high;
+            memory[SP] = low;
+            PC = 0x10;
+            break;
+        } case 0xD8: { // RET C
+            if (getCarryFlag()) {
+                uint16_t lowByte = memory[SP];
+                uint16_t highByte = memory[SP + 1];
+                uint16_t returnAddress = (highByte << 8) | lowByte;
+                SP += 2;
+                PC = returnAddress;
+            } else {
+                PC += 1;
+            }
+            break;
+        } case 0xD9: { // RETI
+            uint16_t lowByte = memory[SP];
+            uint16_t highByte = memory[SP + 1];
+            uint16_t returnAddress = (highByte << 8) | lowByte;
+            SP += 2;
+            PC = returnAddress;
+            IME = true;
+            cycles += 16;
+            break;
+        } case 0xDA: { // JP C, a16
+            uint16_t address = memory[PC] | (memory[PC + 1] << 8);
+            PC += 2;
+            if (getCarryFlag()) {
+                PC = address;
+                cycles += 16;
+            } else {
+                cycles += 12;
+            }
+            break;
+        } case 0xDC: { // CALL C, a16
+            uint16_t address = memory[PC] | (memory[PC + 1] << 8);
+            PC += 2;
+            if (getCarryFlag()) { 
+                memory[--SP] = (PC >> 8) & 0xFF;
+                memory[--SP] = PC & 0xFF;
+                PC = address;
+                cycles += 24;
+            } 
+            else {
+                cycles += 12;
+            }
+            break;
+        } case 0xDE: { // SBC A, n8
+            uint8_t value = memory[PC++];
+            uint16_t result = A - value - getCarryFlag();
+            subtractionFlags(A, value + getCarryFlag(), result);
+            A = result & 0xFF;
+            break;
+        } case 0xDF: { // RST $18
+            uint8_t low = PC & 0xFF;
+            uint8_t high = (PC >> 8) & 0xFF;
+            SP--;
+            memory[SP--] = high;
+            memory[SP] = low;
+            PC = 0x18;
+            break;
+        } case 0xE0: { // LDH [a8], A
+            uint8_t a8 = memory[PC++];
+            memory[0xFF00 + a8] = A;
+            break;
+        } 
         default: {
             std::cout << "Unknown opcode: " << std::hex << (int)opcode << std::endl;
             break;
@@ -1005,8 +1125,9 @@ void CPU::decodeAndExecute(uint8_t opcode) {
 void CPU::executeCBInstruction(uint8_t cb_opcode) {
     switch (cb_opcode) {
 
-        default:
+        default: {
             throw std::runtime_error("Unhandled CB-prefixed opcode: " + std::to_string(cb_opcode));
+        }
     }
 }
 
