@@ -9,8 +9,7 @@ class CPU
 public:
     CPU();
 
-    bool halted = false;
-    bool IME;
+    bool halted, IME;
     uint8_t A, B, C, D, E, H, L, F; // Registers
     uint16_t SP, PC;  // Stack Pointer & Program Counter
     uint32_t cycles;     

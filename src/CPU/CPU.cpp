@@ -1114,8 +1114,122 @@ void CPU::decodeAndExecute(uint8_t opcode) {
             uint8_t a8 = memory[PC++];
             memory[0xFF00 + a8] = A;
             break;
-        } 
-        default: {
+        } case 0xE1: { // POP HL
+            L = memory[SP];
+            H = memory[SP + 1];
+            SP += 2;
+            break;
+        } case 0xE2: { // LD [C], A
+            memory[0xFF00 + C] = A;
+            break;
+        } case 0xE5: { // PUSH HL
+            memory[SP - 1] = L;
+            memory[SP - 2] = H;
+            SP -= 2;
+            break;
+        } case 0xE6: { // AND A, n8
+            A &= memory[PC++];
+            andFlags(A);
+            break;
+        } case 0xE7: { // RST $20
+            uint8_t low = PC & 0xFF;
+            uint8_t high = (PC >> 8) & 0xFF;
+            SP--;
+            memory[SP--] = high;
+            memory[SP] = low;
+            PC = 0x20;
+            break;
+        } case 0xE8: { // ADD SP, e8
+            int8_t value = static_cast<int8_t>(memory[PC++]);
+            uint16_t result = SP + value;        
+            setZeroFlag(result == 0);
+            setSubtractFlag(false);
+            setHalfCarryFlag(((SP & 0xF) + (value & 0xF)) > 0xF);
+            setCarryFlag((result > 0xFFFF));
+            SP = result & 0xFFFF;
+            break;
+        } case 0xE9: { // JP HL
+            uint16_t HL = (H << 8) | L;
+            PC = HL;
+            break;
+        } case 0xEA: { // LD [a16], A
+            uint16_t address = memory[PC] | (memory[PC + 1] << 8);
+            PC += 2;
+            memory[address] = A;
+            break;
+        } case 0xEE: { // XOR A, n8
+            uint8_t value = memory[PC++];
+            A ^= value;
+            orFlags(A);
+            break;
+        } case 0xEF: { // RST $28
+            uint8_t low = PC & 0xFF;
+            uint8_t high = (PC >> 8) & 0xFF;
+            SP--;
+            memory[SP--] = high;
+            memory[SP] = low;
+            PC = 0x28;
+            break;
+        } case 0xF0: { // LDH A, [a8]
+            uint8_t address = memory[PC++];
+            A = memory[0xFF00 + address];
+            break;
+        } case 0xF1: { // POP AF
+            F = memory[SP];
+            A = memory[SP + 1];
+            SP += 2;
+            F &= 0xF0;
+            break;
+        } case 0xF2: { // LD A, [C]
+            A = memory[0xFF00 + C];
+            break;
+        } case 0xF3: { // DI
+            IME = false;
+            break;
+        } case 0xF5: { // PUSH AF
+            memory[--SP] = A;
+            memory[--SP] = F & 0xF0;
+            break;
+        } case 0xF6: { // OR A, n8
+            A |= memory[PC++];
+            orFlags(A);
+            break;
+        } case 0xF7: { // RST $30
+            uint8_t low = PC & 0xFF;
+            uint8_t high = (PC >> 8) & 0xFF;
+            SP--;
+            memory[SP--] = high;
+            memory[SP] = low;
+            PC = 0x30;
+            break;
+        } case 0xF8: { // LD HL, SP + e8
+            int8_t e8 = static_cast<int8_t>(memory[PC++]);
+            uint16_t result = SP + e8;
+            setZeroFlag(false);
+            setSubtractFlag(false);
+            setHalfCarryFlag(((SP & 0xF) + (e8 & 0xF)) > 0xF);
+            setCarryFlag(((SP & 0xFF) + (e8 & 0xFF)) > 0xFF);
+            H = (result >> 8) & 0xFF;
+            L = result & 0xFF;
+            break;
+        } case 0xF9: { // LD SP, HL
+            SP = (H << 8) | L;
+            break;
+        } case 0xFA: { // LD A, [a16]
+            break;
+        } case 0xFB: { // EI
+            break;
+        } case 0xFE: { // CP A, n8
+            break;
+        } case 0xFF: { // RST $38
+            uint8_t low = PC & 0xFF;
+            uint8_t high = (PC >> 8) & 0xFF;
+            SP--;
+            memory[SP--] = high;
+            memory[SP] = low;
+            PC = 0x38;
+            break;
+        } default: {
             std::cout << "Unknown opcode: " << std::hex << (int)opcode << std::endl;
             break;
         }
@@ -1141,7 +1255,6 @@ void CPU::decrementFlags(uint8_t register1) {
     setSubtractFlag(true);
     setHalfCarryFlag((register1 & 0x0F) == 0x0F);
 }
-
 void CPU::additionFlags(uint8_t register1, uint8_t value, uint16_t result) {
     setZeroFlag((result & 0xFF) == 0);
     setSubtractFlag(false);
@@ -1166,7 +1279,6 @@ void CPU::orFlags(uint8_t result) {
     setHalfCarryFlag(false);
     setCarryFlag(false);
 }
-
 
 void CPU::handleInterrupts() {
     // Implement interrupt logic here
