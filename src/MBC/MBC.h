@@ -1,4 +1,4 @@
-#define MBC_H
+#pragma once
 
 #include <iostream>
 

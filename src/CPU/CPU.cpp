@@ -1,5 +1,4 @@
 #include "CPU.h"
-#include <iostream>
 
 CPU::CPU() {
     reset();

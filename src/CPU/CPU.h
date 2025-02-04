@@ -1,8 +1,8 @@
-#ifndef CPU_H
-#define CPU_H
+#pragma once
 
 #include <cstdint>
 #include <array>
+#include <iostream>
 
 class CPU 
 {
@@ -31,11 +31,11 @@ class CPU
         void handleInterrupts();
         
         void decodeAndExecute(uint8_t opcode);
+        void fetch(); // opcode
+        void executeCBInstruction(uint8_t cb_opcode);
 
 
     private:
-        void fetch(); // opcode
-        void executeCBInstruction(uint8_t cb_opcode);
         void incrementFlags(uint8_t register1);
         void decrementFlags(uint8_t register1);
         void additionFlags(uint8_t register1, uint8_t value, uint16_t result);
@@ -43,5 +43,3 @@ class CPU
         void andFlags(uint8_t result);
         void orFlags(uint8_t result);
 };
-
-#endif
