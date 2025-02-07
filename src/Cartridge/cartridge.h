@@ -1,6 +1,6 @@
 #pragma once
 
-#include "MBC/MBC.h"
+#include "src/MBC/MBC.h"
 
 #include <string>
 #include <iostream>

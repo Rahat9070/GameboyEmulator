@@ -21,8 +21,6 @@ void Cartridge::load_game_rom(std::string ROM_location) {
 
     if (!ROM_FILE.read((char*)memory, size)) {
         std::cerr << "Error: Could not read ROM data." << std::endl;
-        delete[] memory;
-        memory = nullptr;
         return;
     }
 
@@ -116,5 +114,5 @@ uint8_t Cartridge::MBC_read(uint16_t address) {
     return mbc->read_byte(address);
 }
 void Cartridge::MBC_write(uint16_t address, uint8_t value) {
-    mbc->write_byte(address);
+    mbc->write_byte(address, value);
 }

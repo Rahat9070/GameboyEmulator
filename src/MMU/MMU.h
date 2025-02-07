@@ -1,9 +1,13 @@
 #pragma once
-
+#include "src/Cartridge/cartridge.cpp"
 
 class MMU {
-public:
+    public:
+        Cartridge *cartridge;
+        MMU(Cartridge* cartridge);
 
-private:
-    uint8_t memory[0x10000];
+        void load_game_rom(std::string ROM_location);
+
+    private:
+        uint8_t memory[0x10000];
 };

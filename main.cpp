@@ -1,4 +1,7 @@
 #include "src/CPU/CPU.h"
+#include "src/Cartridge/cartridge.h"
+#include "src/MBC/MBC.h"
+#include "src/MMU/MMU.h"
 #include <iostream>
 
 int main() {
