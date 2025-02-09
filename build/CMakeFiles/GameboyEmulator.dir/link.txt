@@ -1,1 +1,0 @@
-/usr/bin/c++ CMakeFiles/GameboyEmulator.dir/main.cpp.o CMakeFiles/GameboyEmulator.dir/src/Cartridge/cartridge.cpp.o CMakeFiles/GameboyEmulator.dir/src/CPU/CPU.cpp.o CMakeFiles/GameboyEmulator.dir/src/MBC/MBC.cpp.o CMakeFiles/GameboyEmulator.dir/src/MMU/MMU.cpp.o CMakeFiles/GameboyEmulator.dir/src/Render/render.cpp.o -o GameboyEmulator  -L/usr/lib/x86_64-linux-gnu  -lSDL2 
