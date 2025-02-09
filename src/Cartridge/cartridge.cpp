@@ -77,7 +77,7 @@ void Cartridge::load_game_rom(std::string ROM_location) {
         case 0x00:
         case 0x08:
         case 0x09:
-            mbc = new MBC0(memory);
+            mbc = new MBC0(memory, ram);
             break;
         case 0x01:
         case 0x02:

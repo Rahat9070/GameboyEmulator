@@ -6,7 +6,7 @@ MBC::MBC(uint8_t *rom, uint8_t *ram) {
     this->rom = rom;
     this->ram = ram;
 }
-MBC::MBC(uint8_t *rom, uint8_t *ram, uint8_t *banks_ram, uint8_t *banks_rom) {
+MBC::MBC(uint8_t *rom, uint8_t *ram, int banks_ram, int banks_rom) {
     this->rom = rom;
     this->ram = ram;
     this->banks_ram = banks_ram;
@@ -68,7 +68,7 @@ void MBC1::write_byte(uint16_t address, uint8_t value) {
     } else if (address >= 0xA000 && address < 0xC000) {
         if (is_ram_extended == true) {
             uint16_t ram_address = (bank_ram * 0x2000) + (address - 0xA000);
-            if (ram_address < *banks_ram * 0x2000) {
+            if (ram_address < banks_ram * 0x2000) {
                 ram[ram_address] = value;
             }
         }
@@ -171,7 +171,7 @@ void MBC5::write_byte(uint16_t address, uint8_t value) {
         bank_rom = (bank_rom & 0x100) | value;
     } else if (address >= 0x3000 && address < 0x4000) {
         bank_rom = (bank_rom & 0xff) | ((value & 0x01) << 8);
-    } else if (adress >= 0x4000 && address < 0x6000) {
+    } else if (address >= 0x4000 && address < 0x6000) {
         bank_ram = (value & 0x0f) % banks_ram;
     } else if (address >= 0xA000 && address < 0xC000) {
         if (is_ram_extended) {
