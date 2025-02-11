@@ -4,7 +4,7 @@
 class MMU {
     public:
         Cartridge *cartridge;
-        uint8_t memory[0x10000];
+        uint8_t memory[0xFFFF];
 
 
         MMU(Cartridge* cartridge);

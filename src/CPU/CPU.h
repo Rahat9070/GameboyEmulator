@@ -1,5 +1,6 @@
 #pragma once
 
+#include "MMU/MMU.h"
 #include <cstdint>
 #include <array>
 #include <iostream>
@@ -7,14 +8,15 @@
 class CPU 
 {
     public:
-        CPU();
+        CPU(MMU& mmu);
 
         bool halted, IME;
         uint8_t A, B, C, D, E, H, L, F; // Registers
         uint16_t SP, PC;  // Stack Pointer & Program Counter
         uint32_t cycles;     
 
-        std::array<uint8_t, 0x10000> memory;
+        MMU* mmu;
+        uint8_t* memory;
 
         bool getZeroFlag();
         bool getSubtractFlag();

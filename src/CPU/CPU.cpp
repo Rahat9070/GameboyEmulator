@@ -1,6 +1,8 @@
 #include "CPU.h"
 
-CPU::CPU() {
+CPU::CPU(MMU& mmu) {
+    this->mmu = &mmu;
+    memory = mmu.memory;
     reset();
 }
 
@@ -8,7 +10,6 @@ void CPU::reset() {
     A = B = C = D = E = H = L = F = 0;
     SP = 0xFFFE;
     PC = 0x0100;
-    memory.fill(0); // Clear all memory
     cycles = 0;
     halted = IME = false;
 }
@@ -24,8 +25,8 @@ void CPU::setHalfCarryFlag(bool value) { F = (F & ~0x20) | (value << 5); }
 void CPU::setCarryFlag(bool value) { F = (F & ~0x10) | (value << 4); }
 
 void CPU::executeInstruction() {
-    uint8_t opcode = memory[PC++];
-    decodeAndExecute(opcode);
+    uint8_t instruction = this->mmu->read_byte(PC++);
+    decodeAndExecute(instruction);
 }
 
 void CPU::decodeAndExecute(uint8_t opcode) {

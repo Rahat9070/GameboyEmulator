@@ -508,3 +508,9 @@ FodyWeavers.xsd
 .vscode/
 /myprogram
 ROMs/
+**/build/
+build/
+build/CMakeFiles/
+build/CMakeCache.txt
+build/Makefile
+build/cmake_install.cmake

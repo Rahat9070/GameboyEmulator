@@ -129,7 +129,10 @@ uint8_t MBC3::read_byte(uint16_t address) {
         std::cout << "Cannot read byte for MBC3" << std::endl;
         return 0;
     }
+
+    return 0;
 }
+
 void MBC3::write_byte(uint16_t address, uint8_t value) {
     if (address < 0x2000) {
         is_ram_extended = (value & 0x0f) == 0x0a;
