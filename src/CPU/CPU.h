@@ -44,4 +44,10 @@ class CPU
         void subtractionFlags(uint8_t register1, uint8_t value, uint16_t result);
         void andFlags(uint8_t result);
         void orFlags(uint8_t result);
+        void RLC(uint8_t& register1);
+        void RRC(uint8_t& register1);
+        void RL(uint8_t& register1);
+        void RR(uint8_t& register1);
+        void SLA(uint8_t& register1);
+        void SRA(uint8_t& register1);
 };

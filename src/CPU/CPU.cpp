@@ -24,9 +24,30 @@ void CPU::setSubtractFlag(bool value) { F = (F & ~0x40) | (value << 6); }
 void CPU::setHalfCarryFlag(bool value) { F = (F & ~0x20) | (value << 5); }
 void CPU::setCarryFlag(bool value) { F = (F & ~0x10) | (value << 4); }
 
+void CPU::handleInterrupts() {
+    if (IME == true) return;
+    uint8_t interrupt_flags = mmu->interrupt_flags;
+    uint8_t interrupt_enable = mmu->interrupt_enable;
+    if (interrupt_flags & interrupt_enable) {
+        IME = false;
+        halted = false;
+        if (interrupt_flags & 0x01) {
+            mmu->interrupt_flags &= ~0x01;
+        } else if (interrupt_flags & 0x02) {
+            mmu->interrupt_flags &= ~0x02;
+        } else if (interrupt_flags & 0x04) {
+            mmu->interrupt_flags &= ~0x04;
+        } else if (interrupt_flags & 0x08) {
+            mmu->interrupt_flags &= ~0x08;
+        } else if (interrupt_flags & 0x10) {
+            mmu->interrupt_flags &= ~0x10;
+        }
+    }
+}
+
 void CPU::executeInstruction() {
-    uint8_t instruction = this->mmu->read_byte(PC++);
-    decodeAndExecute(instruction);
+    uint8_t opcode = this->mmu->read_byte(PC++);
+    decodeAndExecute(opcode);
 }
 
 void CPU::decodeAndExecute(uint8_t opcode) {
@@ -1238,7 +1259,169 @@ void CPU::decodeAndExecute(uint8_t opcode) {
 
 void CPU::executeCBInstruction(uint8_t cb_opcode) {
     switch (cb_opcode) {
-
+        case 0x00: { // RLC B
+            RLC(B);
+            break;
+        } case 0x01: { // RLC C
+            RLC(C);
+            break;
+        } case 0x02: { // RLC D
+            RLC(D);
+            break;
+        } case 0x03: { // RLC E
+            RLC(E);
+            break;
+        } case 0x04: { // RLC H
+            RLC(H);
+            break;
+        } case 0x05: { // RLC L
+            RLC(L);
+            break;
+        } case 0x06: { // RLC [HL]
+            uint16_t HL = (H << 8) | L;
+            uint8_t value = memory[HL];
+            RLC(value);
+            memory[HL] = value;
+            break;
+        } case 0x07: { // RLC A
+            RLC(A);
+            break;
+        } case 0x08: { // RRC B
+            RRC(B);
+            break;
+        } case 0x09: { // RRC C
+            RRC(C);
+            break;
+        } case 0x0A: { // RRC D
+            RRC(D);
+            break;
+        } case 0x0B: { // RRC E
+            RRC(E);
+            break;
+        } case 0x0C: { // RRC H
+            RRC(H);
+            break;
+        } case 0x0D: { // RRC L
+            RRC(L);
+            break;
+        } case 0x0E: { // RRC [HL]
+            uint16_t HL = (H << 8) | L;
+            uint8_t value = memory[HL];
+            RRC(value);
+            memory[HL] = value;
+            break;
+        } case 0x0F: { // RRC A
+            RRC(A);
+            break;
+        } case 0x10: { // RL B
+            RL(B);
+            break;
+        } case 0x11: { // RL C
+            RL(C);
+            break;
+        } case 0x12: { // RL D
+            RL(D);
+            break;
+        } case 0x13: { // RL E
+            RL(E);
+            break;
+        } case 0x14: { // RL H
+            RL(H);
+            break;
+        } case 0x15: { // RL L
+            RL(L);
+            break;
+        } case 0x16: { // RL [HL]
+            uint16_t HL = (H << 8) | L;
+            uint8_t value = memory[HL];
+            RL(value);
+            memory[HL] = value;
+            break;
+        } case 0x17: { // RL A
+            RL(A);
+            break;
+        } case 0x18: { // RR B
+            RR(B);
+            break;
+        } case 0x19: { // RR C
+            RR(C);
+            break;
+        } case 0x1A: { // RR D
+            RR(D);
+            break;
+        } case 0x1B: { // RR E
+            RR(E);
+            break;
+        } case 0x1C: { // RR H
+            RR(H);
+            break;
+        } case 0x1D: { // RR L
+            RR(L);
+            break;
+        } case 0x1E: { // RR [HL]
+            uint16_t HL = (H << 8) | L;
+            uint8_t value = memory[HL];
+            RR(value);
+            memory[HL] = value;
+            break;
+        } case 0x1F: { // RR A
+            RR(A);
+            break;
+        } case 0x20: { // SLA B
+            SLA(B);
+            break;
+        } case 0x21: { // SLA C
+            SLA(C);
+            break;
+        } case 0x22: { // SLA D
+            SLA(D);
+            break;
+        } case 0x23: { // SLA E
+            SLA(E);
+            break;
+        } case 0x24: { // SLA H
+            SLA(H);
+            break;
+        } case 0x25: { // SLA L
+            SLA(L);
+            break;
+        } case 0x26: { // SLA [HL]
+            uint16_t HL = (H << 8) | L;
+            uint8_t value = memory[HL];
+            SLA(value);
+            memory[HL] = value;
+            break;
+        } case 0x27: { // SLA A
+            SLA(A);
+            break;
+        } case 0x28: { // SRA B
+            SRA(B);
+            break;
+        } case 0x29: { // SRA C
+            SRA(C);
+            break;
+        } case 0x2A: { // SRA D
+            SRA(D);
+            break;
+        } case 0x2B: { // SRA E
+            SRA(E);
+            break;
+        } case 0x2C: { // SRA H
+            SRA(H);
+            break;
+        } case 0x2D: { // SRA L
+            SRA(L);
+            break;
+        } case 0x2E: { // SRA [HL]
+            uint16_t HL = (H << 8) | L;
+            uint8_t value = memory[HL];
+            SRA(value);
+            memory[HL] = value;
+            break;
+        } case 0x2F: { // SRA A
+            SRA(A);
+            break;
+        } 
         default: {
             throw std::runtime_error("Unhandled CB-prefixed opcode: " + std::to_string(cb_opcode));
         }
@@ -1280,6 +1463,57 @@ void CPU::orFlags(uint8_t result) {
     setCarryFlag(false);
 }
 
-void CPU::handleInterrupts() {
-    // Implement interrupt logic here
+void CPU::RLC(uint8_t& register1) {
+    uint8_t bit = register1 >> 7;
+    register1 = (register1 << 1) | bit;
+    setZeroFlag(register1 == 0);
+    setSubtractFlag(false);
+    setHalfCarryFlag(false);
+    setCarryFlag(bit);
+}
+void CPU::RRC(uint8_t& register1) {
+    uint8_t bit = (register1 & 0x01);
+    register1 = (register1 >> 1) | (bit << 7);
+    setZeroFlag(register1 == 0);
+    setSubtractFlag(false);
+    setHalfCarryFlag(false);
+    setCarryFlag(bit);
+}
+
+void CPU::RL(uint8_t& register1) {
+    uint8_t bit = (register1 >> 7) & 1;
+    uint8_t new_bit = getCarryFlag();
+    register1 = (register1 << 1) | new_bit;
+    setZeroFlag(register1 == 0);
+    setSubtractFlag(false);
+    setHalfCarryFlag(false);
+    setCarryFlag(bit);
+}
+void CPU::RR(uint8_t& register1) {
+    uint8_t bit0 = register1 & 0x01;
+    uint8_t new_bit7 = getCarryFlag();
+    register1 = (register1 >> 1) | (new_bit7 << 7);
+    setZeroFlag(register1 == 0);
+    setSubtractFlag(false);
+    setHalfCarryFlag(false);
+    setCarryFlag(bit0);
+}
+void CPU::SLA(uint8_t& register1) {
+    uint8_t bit = (register1 >> 7) & 1;
+    register1 = (register1 << 1) & 0xFE;
+    setZeroFlag(register1 == 0);
+    setSubtractFlag(false);
+    setHalfCarryFlag(false);
+    setCarryFlag(bit);
+}
+void CPU::SRA(uint8_t& register1) {
+    uint8_t bit0 = register1 & 0x01;
+    uint8_t bit7 = register1 & 0x80;
+    
+    register1 = (register1 >> 1) | bit7;
+
+    setZeroFlag(register1 == 0);
+    setSubtractFlag(false);
+    setHalfCarryFlag(false);
+    setCarryFlag(bit0);
 }

@@ -5,6 +5,8 @@ class MMU {
     public:
         Cartridge *cartridge;
         uint8_t memory[0xFFFF];
+        uint8_t interrupt_enable = memory[0xFFFF]; // IE register
+        uint8_t interrupt_flags = memory[0xFF0F];  // IF register
 
 
         MMU(Cartridge* cartridge);
