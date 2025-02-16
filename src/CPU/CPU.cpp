@@ -1421,7 +1421,709 @@ void CPU::executeCBInstruction(uint8_t cb_opcode) {
         } case 0x2F: { // SRA A
             SRA(A);
             break;
-        } 
+        } case 0x30: { // SWAP B
+            SWAP(B);
+            break;
+        } case 0x31: { // SWAP C
+            SWAP(C);
+            break;
+        } case 0x32: { // SWAP D
+            SWAP(D);
+            break;
+        } case 0x33: { // SWAP E
+            SWAP(E);
+            break;
+        } case 0x34: { // SWAP H
+            SWAP(H);
+            break;
+        } case 0x35: { // SWAP L
+            SWAP(L);
+            break;
+        } case 0x36: { // SWAP [HL]
+            uint16_t HL = (H << 8) | L;
+            uint8_t value = memory[HL];
+            SWAP(value);
+            memory[HL] = value;
+            break;
+        } case 0x37: { // SWAP A
+            SWAP(A);
+            break;
+        } case 0x38: { // SRL B
+            SRL(B);
+            break;
+        } case 0x39: { // SRL C
+            SRL(C);
+            break;
+        } case 0x3A: { // SRL D
+            SRL(D);
+            break;
+        } case 0x3B: { // SRL E
+            SRL(E);
+            break;
+        } case 0x3C: { // SRL H
+            SRL(H);
+            break;
+        } case 0x3D: { // SRL L
+            SRL(L);
+            break;
+        } case 0x3E: { // SRL [HL]
+            uint16_t HL = (H << 8) | L;
+            uint8_t value = memory[HL];
+            SRL(value);
+            memory[HL] = value;
+            break;
+        } case 0x3F: { // SRL A
+            SRL(A);
+            break;
+        } case 0x40: { // BIT 0, B
+            BIT(B, 0);
+            break;
+        } case 0x41: { // BIT 0, C
+            BIT(C, 0);
+            break;
+        } case 0x42: {
+            BIT(D, 0);
+            break;
+        } case 0x43: {
+            BIT(E, 0);
+            break;
+        } case 0x44: {
+            BIT(H, 0);
+            break;
+        } case 0x45: {
+            BIT(L, 0);
+            break;
+        } case 0x46: {
+            uint16_t HL = (H << 8) | L;
+            uint8_t value = memory[HL];
+            BIT(value, 0);
+            memory[HL] = value;
+            break;
+        } case 0x47: {
+            BIT(A, 0);
+            break;
+        } case 0x48: {
+            BIT(B, 1);
+            break;
+        } case 0x49: {
+            BIT(C, 1);
+            break;
+        } case 0x4A: {
+            BIT(D, 1);
+            break;
+        } case 0x4B: {
+            BIT(E, 1);
+            break;
+        } case 0x4C: {
+            BIT(H, 1);
+            break;
+        } case 0x4D: {
+            BIT(L, 1);
+            break;
+        } case 0x4E: {
+            uint16_t HL = (H << 8) | L;
+            uint8_t value = memory[HL];
+            BIT(value, 1);
+            memory[HL] = value;
+            break;
+        } case 0x4F: {
+            BIT(A, 1);
+            break;
+        } case 0x50: {
+            BIT(B, 2);
+            break;
+        } case 0x51: {
+            BIT(C, 2);
+            break;
+        } case 0x52: {
+            BIT(D, 2);
+            break;
+        } case 0x53: {
+            BIT(E, 2);
+            break;
+        } case 0x54: {
+            BIT(H, 2);
+            break;
+        } case 0x55: {
+            BIT(L, 2);
+            break;
+        } case 0x56: {
+            uint16_t HL = (H << 8) | L;
+            uint8_t value = memory[HL];
+            BIT(value, 2);
+            memory[HL] = value;
+            break;
+        } case 0x57: {
+            BIT(A, 2);
+            break;
+        } case 0x58: {
+            BIT(B, 3);
+            break;
+        } case 0x59: {
+            BIT(C, 3);
+            break;
+        } case 0x5A: {
+            BIT(D, 3);
+            break;
+        } case 0x5B: {
+            BIT(E, 3);
+            break;
+        } case 0x5C: {
+            BIT(H, 3);
+            break;
+        } case 0x5D: {
+            BIT(L, 3);
+            break;
+        } case 0x5E: {
+            uint16_t HL = (H << 8) | L;
+            uint8_t value = memory[HL];
+            BIT(value, 3);
+            memory[HL] = value;
+            break;
+        } case 0x5F: {
+            BIT(A, 3);
+            break;
+        } case 0x60: {
+            BIT(B, 4);
+            break;
+        } case 0x61: {
+            BIT(C, 4);
+            break;
+        } case 0x62: {
+            BIT(D, 4);
+            break;
+        } case 0x63: {
+            BIT(E, 4);
+            break;
+        } case 0x64: {
+            BIT(H, 4);
+            break;
+        } case 0x65: {
+            BIT(L, 4);
+            break;
+        } case 0x66: {
+            uint16_t HL = (H << 8) | L;
+            uint8_t value = memory[HL];
+            BIT(value, 4);
+            memory[HL] = value;
+            break;
+        } case 0x67: {
+            BIT(A, 4);
+            break;
+        } case 0x68: {
+            BIT(B, 5);
+            break;
+        } case 0x69: {
+            BIT(C, 5);
+            break;
+        } case 0x6A: {
+            BIT(D, 5);
+            break;
+        } case 0x6B: {
+            BIT(E, 5);
+            break;
+        } case 0x6C: {
+            BIT(H, 5);
+            break;
+        } case 0x6D: {
+            BIT(L, 5);
+            break;
+        } case 0x6E: {
+            uint16_t HL = (H << 8) | L;
+            uint8_t value = memory[HL];
+            BIT(value, 5);
+            memory[HL] = value;
+            break;
+        } case 0x6F: {
+            BIT(A, 5);
+            break;
+        } case 0x70: {
+            BIT(B, 6);
+            break;
+        } case 0x71: {
+            BIT(C, 6);
+            break;
+        } case 0x72: {
+            BIT(D, 6);
+            break;
+        } case 0x73: {
+            BIT(E, 6);
+            break;
+        } case 0x74: {
+            BIT(H, 6);
+            break;
+        } case 0x75: {
+            BIT(L, 6);
+            break;
+        } case 0x76: {
+            uint16_t HL = (H << 8) | L;
+            uint8_t value = memory[HL];
+            BIT(value, 6);
+            memory[HL] = value;
+            break;
+        } case 0x77: {
+            BIT(A, 6);
+            break;
+        } case 0x78: {
+            BIT(B, 7);
+            break;
+        } case 0x79: {
+            BIT(C, 7);
+            break;
+        } case 0x7A: {
+            BIT(D, 7);
+            break;
+        } case 0x7B: {
+            BIT(E, 7);
+            break;
+        } case 0x7C: {
+            BIT(H, 7);
+            break;
+        } case 0x7D: {
+            BIT(L, 7);
+            break;
+        } case 0x7E: {
+            uint16_t HL = (H << 8) | L;
+            uint8_t value = memory[HL];
+            BIT(value, 7);
+            memory[HL] = value;
+            break;
+        } case 0x7F: {
+            BIT(A, 7);
+            break;
+        } case 0x80: {
+            RES(B, 0);
+            break;
+        } case 0x81: {
+            RES(C, 0);
+            break;
+        } case 0x82: {
+            RES(D, 0);
+            break;
+        } case 0x83: {
+            RES(E, 0);
+            break;
+        } case 0x84: {
+            RES(H, 0);
+            break;
+        } case 0x85: {
+            RES(L, 0);
+            break;
+        } case 0x86: {
+            uint16_t HL = (H << 8) | L;
+            uint8_t value = memory[HL];
+            RES(value, 0);
+            memory[HL] = value;
+            break;
+        } case 0x87: {
+            RES(A, 0);
+            break;
+        } case 0x88: {
+            RES(B, 1);
+            break;
+        } case 0x89: {
+            RES(C, 1);
+            break;
+        } case 0x8A: {
+            RES(D, 1);
+            break;
+        } case 0x8B: {
+            RES(E, 1);
+            break;
+        } case 0x8C: {
+            RES(H, 1);
+            break;
+        } case 0x8D: {
+            RES(L, 1);
+            break;
+        } case 0x8E: {
+            uint16_t HL = (H << 8) | L;
+            uint8_t value = memory[HL];
+            RES(value, 1);
+            memory[HL] = value;
+            break;
+        } case 0x8F: {
+            RES(A, 1);
+            break;
+        } case 0x90: {
+            RES(B, 2);
+            break;
+        } case 0x91: {
+            RES(C, 2);
+            break;
+        } case 0x92: {
+            RES(D, 2);
+            break;
+        } case 0x93: {
+            RES(E, 2);
+            break;
+        } case 0x94: {
+            RES(H, 2);
+            break;
+        } case 0x95: {
+            RES(L, 2);
+            break;
+        } case 0x96: {
+            uint16_t HL = (H << 8) | L;
+            uint8_t value = memory[HL];
+            RES(value, 2);
+            memory[HL] = value;
+            break;
+        } case 0x97: {
+            RES(A, 2);
+            break;
+        } case 0x98: {
+            RES(B, 3);
+            break;
+        } case 0x99: {
+            RES(C, 3);
+            break;
+        } case 0x9A: {
+            RES(D, 3);
+            break;
+        } case 0x9B: {
+            RES(E, 3);
+            break;
+        } case 0x9C: {
+            RES(H, 3);
+            break;
+        } case 0x9D: {
+            RES(L, 3);
+            break;
+        } case 0x9E: {
+            uint16_t HL = (H << 8) | L;
+            uint8_t value = memory[HL];
+            RES(value, 3);
+            memory[HL] = value;
+            break;
+        } case 0x9F: {
+            RES(A, 3);
+            break;
+        } case 0xA0: {
+            RES(B, 4);
+            break;
+        } case 0xA1: {
+            RES(C, 4);
+            break;
+        } case 0xA2: {
+            RES(D, 4);
+            break;
+        } case 0xA3: {
+            RES(E, 4);
+            break;
+        } case 0xA4: {
+            RES(H, 4);
+            break;
+        } case 0xA5: {
+            RES(L, 4);
+            break;
+        } case 0xA6: {
+            uint16_t HL = (H << 8) | L;
+            uint8_t value = memory[HL];
+            RES(value, 4);
+            memory[HL] = value;
+            break;
+        } case 0xA7: {
+            RES(A, 4);
+            break;
+        } case 0xA8: {
+            RES(B, 5);
+            break;
+        } case 0xA9: {
+            RES(C, 5);
+            break;
+        } case 0xAA: {
+            RES(D, 5);
+            break;
+        } case 0xAB: {
+            RES(E, 5);
+            break;
+        } case 0xAC: {
+            RES(H, 5);
+            break;
+        } case 0xAD: {
+            RES(L, 5);
+            break;
+        } case 0xAE: {
+            uint16_t HL = (H << 8) | L;
+            uint8_t value = memory[HL];
+            RES(value, 5);
+            memory[HL] = value;
+            break;
+        } case 0xAF: {
+            RES(A, 5);
+            break;
+        } case 0xB0: {
+            RES(B, 6);
+            break;
+        } case 0xB1: {
+            RES(C, 6);
+            break;
+        } case 0xB2: {
+            RES(D, 6);
+            break;
+        } case 0xB3: {
+            RES(E, 6);
+            break;
+        } case 0xB4: {
+            RES(H, 6);
+            break;
+        } case 0xB5: {
+            RES(L, 6);
+            break;
+        } case 0xB6: {
+            uint16_t HL = (H << 8) | L;
+            uint8_t value = memory[HL];
+            RES(value, 6);
+            memory[HL] = value;
+            break;
+        } case 0xB7: {
+            RES(A, 6);
+            break;
+        } case 0xB8: {
+            RES(B, 7);
+            break;
+        } case 0xB9: {
+            RES(C, 7);
+            break;
+        } case 0xBA: {
+            RES(D, 7);
+            break;
+        } case 0xBB: {
+            RES(E, 7);
+            break;
+        } case 0xBC: {
+            RES(H, 7);
+            break;
+        } case 0xBD: {
+            RES(L, 7);
+            break;
+        } case 0xBE: {
+            uint16_t HL = (H << 8) | L;
+            uint8_t value = memory[HL];
+            RES(value, 7);
+            memory[HL] = value;
+            break;
+        } case 0xBF: {
+            RES(A, 7);
+            break;
+        } case 0xC0: {
+            SET(B, 0);
+            break;
+        } case 0xC1: {
+            SET(C, 0);
+            break;
+        } case 0xC2: {
+            SET(D, 0);
+            break;
+        } case 0xC3: {
+            SET(E, 0);
+            break;
+        } case 0xC4: {
+            SET(H, 0);
+            break;
+        } case 0xC5: {
+            SET(L, 0);
+            break;
+        } case 0xC6: {
+            uint16_t HL = (H << 8) | L;
+            uint8_t value = memory[HL];
+            SET(value, 0);
+            memory[HL] = value;
+            break;
+        } case 0xC7: {
+            SET(A, 0);
+            break;
+        } case 0xC8: {
+            SET(B, 1);
+            break;
+        } case 0xC9: {
+            SET(C, 1);
+            break;
+        } case 0xCA: {
+            SET(D, 1);
+            break;
+        } case 0xCB: {
+            SET(E, 1);
+            break;
+        } case 0xCC: {
+            SET(H, 1);
+            break;
+        } case 0xCD: {
+            SET(L, 1);
+            break;
+        } case 0xCE: {
+            uint16_t HL = (H << 8) | L;
+            uint8_t value = memory[HL];
+            SET(value, 1);
+            memory[HL] = value;
+            break;
+        } case 0xCF: {
+            SET(A, 1);
+            break;
+        } case 0xD0: {
+            SET(B, 2);
+            break;
+        } case 0xD1: {
+            SET(C, 2);
+            break;
+        } case 0xD2: {
+            SET(D, 2);
+            break;
+        } case 0xD3: {
+            SET(E, 2);
+            break;
+        } case 0xD4: {
+            SET(H, 2);
+            break;
+        } case 0xD5: {
+            SET(L, 2);
+            break;
+        } case 0xD6: {
+            uint16_t HL = (H << 8) | L;
+            uint8_t value = memory[HL];
+            SET(value, 2);
+            memory[HL] = value;
+            break;
+        } case 0xD7: {
+            SET(A, 2);
+            break;
+        } case 0xD8: {
+            SET(B, 3);
+            break;
+        } case 0xD9: {
+            SET(C, 3);
+            break;
+        } case 0xDA: {
+            SET(D, 3);
+            break;
+        } case 0xDB: {
+            SET(E, 3);
+            break;
+        } case 0xDC: {
+            SET(H, 3);
+            break;
+        } case 0xDD: {
+            SET(L, 3);
+            break;
+        } case 0xDE: {
+            uint16_t HL = (H << 8) | L;
+            uint8_t value = memory[HL];
+            SET(value, 3);
+            memory[HL] = value;
+            break;
+        } case 0xDF: {
+            SET(A, 3);
+            break;
+        } case 0xE0: {
+            SET(B, 4);
+            break;
+        } case 0xE1: {
+            SET(C, 4);
+            break;
+        } case 0xE2: {
+            SET(D, 4);
+            break;
+        } case 0xE3: {
+            SET(E, 4);
+            break;
+        } case 0xE4: {
+            SET(H, 4);
+            break;
+        } case 0xE5: {
+            SET(L, 4);
+            break;
+        } case 0xE6: {
+            uint16_t HL = (H << 8) | L;
+            uint8_t value = memory[HL];
+            SET(value, 4);
+            memory[HL] = value;
+            break;
+        } case 0xE7: {
+            SET(A, 4);
+            break;
+        } case 0xE8: {
+            SET(B, 5);
+            break;
+        } case 0xE9: {
+            SET(C, 5);
+            break;
+        } case 0xEA: {
+            SET(D, 5);
+            break;
+        } case 0xEB: {
+            SET(E, 5);
+            break;
+        } case 0xEC: {
+            SET(H, 5);
+            break;
+        } case 0xED: {
+            SET(L, 5);
+            break;
+        } case 0xEE: {
+            uint16_t HL = (H << 8) | L;
+            uint8_t value = memory[HL];
+            SET(value, 5);
+            memory[HL] = value;
+            break;
+        } case 0xEF: {
+            SET(A, 5);
+            break;
+        } case 0xF0: {
+            SET(B, 6);
+            break;
+        } case 0xF1: {
+            SET(C, 6);
+            break;
+        } case 0xF2: {
+            SET(D, 6);
+            break;
+        } case 0xF3: {
+            SET(E, 6);
+            break;
+        } case 0xF4: {
+            SET(H, 6);
+            break;
+        } case 0xF5: {
+            SET(L, 6);
+            break;
+        } case 0xF6: {
+            uint16_t HL = (H << 8) | L;
+            uint8_t value = memory[HL];
+            SET(value, 6);
+            memory[HL] = value;
+            break;
+        } case 0xF7: {
+            SET(A, 6);
+            break;
+        } case 0xF8: {
+            SET(B, 7);
+            break;
+        } case 0xF9: {
+            SET(C, 7);
+            break;
+        } case 0xFA: {
+            SET(D, 7);
+            break;
+        } case 0xFB: {
+            SET(E, 7);
+            break;
+        } case 0xFC: {
+            SET(H, 7);
+            break;
+        } case 0xFD: {
+            SET(L, 7);
+            break;
+        } case 0xFE: {
+            uint16_t HL = (H << 8) | L;
+            uint8_t value = memory[HL];
+            SET(value, 7);
+            memory[HL] = value;
+            break;
+        } case 0xFF: {
+            SET(A, 7);
+            break;
+        }
         default: {
             throw std::runtime_error("Unhandled CB-prefixed opcode: " + std::to_string(cb_opcode));
         }
@@ -1479,7 +2181,6 @@ void CPU::RRC(uint8_t& register1) {
     setHalfCarryFlag(false);
     setCarryFlag(bit);
 }
-
 void CPU::RL(uint8_t& register1) {
     uint8_t bit = (register1 >> 7) & 1;
     uint8_t new_bit = getCarryFlag();
@@ -1516,4 +2217,31 @@ void CPU::SRA(uint8_t& register1) {
     setSubtractFlag(false);
     setHalfCarryFlag(false);
     setCarryFlag(bit0);
+}
+void CPU::SWAP(uint8_t& register1) {
+    register1 = (register1 >> 4) | (register1 << 4);
+    setZeroFlag(register1 == 0);
+    setSubtractFlag(false);
+    setHalfCarryFlag(false);
+    setCarryFlag(false);
+}
+void CPU::SRL(uint8_t& register1) {
+    uint8_t bit = register1 & 0x01;
+    register1 >>= 1;
+    register1 &= 0x7F;
+    setZeroFlag(register1 == 0);
+    setSubtractFlag(false);
+    setHalfCarryFlag(false);
+    setCarryFlag(bit);
+}
+void CPU::BIT(uint8_t& register1, uint8_t bit) {
+    setZeroFlag(!(register1 & (1 << bit)));
+    setSubtractFlag(false);
+    setHalfCarryFlag(true);
+}
+void CPU::RES(uint8_t& register1, uint8_t bit) {
+    register1 &= ~(1 << bit);
+}
+void CPU::SET(uint8_t& register1, uint8_t bit) {
+    reg |= (1 << bit); 
 }
