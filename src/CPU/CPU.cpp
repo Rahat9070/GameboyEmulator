@@ -2243,5 +2243,5 @@ void CPU::RES(uint8_t& register1, uint8_t bit) {
     register1 &= ~(1 << bit);
 }
 void CPU::SET(uint8_t& register1, uint8_t bit) {
-    reg |= (1 << bit); 
+    register1 |= (1 << bit); 
 }

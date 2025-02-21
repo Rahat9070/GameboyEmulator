@@ -52,7 +52,7 @@ class CPU
         void SRA(uint8_t& register1);
         void SWAP(uint8_t& register1);
         void SRL(uint8_t& register1);
-        void BIT(uint8_t register1, uint8_t bit);
+        void BIT(uint8_t& register1, uint8_t bit);
         void RES(uint8_t& register1, uint8_t bit);
         void SET(uint8_t& register1, uint8_t bit);
 };
