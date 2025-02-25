@@ -1,4 +1,5 @@
 #include "cartridge.h"
+#include <iostream>
 
 Cartridge::Cartridge(std::string ROM_location) {
     load_game_rom(ROM_location);
@@ -111,6 +112,7 @@ void Cartridge::load_game_rom(std::string ROM_location) {
 }
 
 uint8_t Cartridge::MBC_read(uint16_t address) {
+    std::cout << "MBC Read " << std::hex << (int)address << std::endl;
     return mbc->read_byte(address);
 }
 void Cartridge::MBC_write(uint16_t address, uint8_t value) {

@@ -28,9 +28,11 @@ uint8_t MMU::read_byte(uint16_t address) {
     if (address < 0x100)
         return memory[address];
 
+    // Switchable ROM banks
     if (address < 0x8000)
         return cartridge->MBC_read(address);
 
+    // Switchable RAM banks
     if (address >= 0xA000 && address <= 0xBFFF)
         return cartridge->MBC_read(address);
 
