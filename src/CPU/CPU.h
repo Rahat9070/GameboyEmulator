@@ -1,6 +1,7 @@
 #pragma once
 
 #include "MMU/MMU.h"
+#include "Scheduler/scheduler.h"
 #include <cstdint>
 #include <array>
 #include <iostream>
@@ -8,7 +9,7 @@
 class CPU 
 {
     public:
-        CPU(MMU& mmu);
+        CPU(MMU& mmu, Scheduler& scheduler);
 
         const uint8_t instructionCycles[256] = {
             4, 12, 8, 8, 4, 4, 8, 4, 20, 8, 8, 8, 4, 4, 8, 4, // 0x00 - 0x0F
@@ -48,11 +49,11 @@ class CPU
         };
         bool halted, IME;
         uint8_t A, B, C, D, E, H, L, F; // Registers
-        uint8_t DIV, TIMA, TMA, TAC; // Timer Registers
         uint16_t SP, PC;  // Stack Pointer & Program Counter
         int timer_cycles, divider_cycles; // Timer & Divider Cycles
 
         MMU* mmu;
+        Scheduler* scheduler;
         uint8_t* memory;
 
         bool getZeroFlag();
@@ -68,7 +69,6 @@ class CPU
         void reset();     
         void executeInstruction(uint8_t opcode);
         void handleInterrupts();
-        void updateTimer(int cycles);
 
         void fetch(); // opcode
         void decodeAndExecute(uint8_t opcode);

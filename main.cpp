@@ -1,6 +1,7 @@
 // filepath: /home/rahat/6CCS3PRJ/GameboyEmulator/main.cpp
 #include "src/Render/render.h"
 #include "src/CPU/CPU.h"
+#include "src/Scheduler/scheduler.h"
 #include "src/Cartridge/cartridge.h"
 #include "src/MMU/MMU.h"
 
@@ -24,7 +25,8 @@ int main(int argc, char* argv[]) {
     Renderer renderer;
     Cartridge cartridge(directory);
     MMU mmu(&cartridge);
-    CPU cpu(mmu);
+    Scheduler scheduler(&mmu);
+    CPU cpu(mmu, scheduler);
     if (!renderer.init("Gameboy Emulator", 640, 480)) {
         return -1;
     }

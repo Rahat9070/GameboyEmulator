@@ -108,13 +108,20 @@ void Cartridge::load_game_rom(std::string ROM_location) {
             std::cerr << "Error: Unsupported MBC type: " << std::hex << (int)mbc_type << std::endl;
             return;
     }
-
+    info();
 }
 
 uint8_t Cartridge::MBC_read(uint16_t address) {
-    std::cout << "MBC Read " << std::hex << (int)address << std::endl;
     return mbc->read_byte(address);
 }
 void Cartridge::MBC_write(uint16_t address, uint8_t value) {
     mbc->write_byte(address, value);
+}
+
+void Cartridge::info() {
+    std::string rom_title = std::string(memory + 0x134, memory + 0x143);
+    std::cout << "Rom Title: " << rom_title << std::endl;
+    std::cout << "MBC: " << mbc << std::endl;
+    std::cout << "ROM Banks: " << banks_rom << std::endl;
+    std::cout << "RAM Banks: " << banks_ram << std::endl;
 }

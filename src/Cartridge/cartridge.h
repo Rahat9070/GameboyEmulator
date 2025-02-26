@@ -24,4 +24,5 @@ class Cartridge {
 
         uint8_t MBC_read(uint16_t address);
         void MBC_write(uint16_t address, uint8_t value);
+        void info();
 };

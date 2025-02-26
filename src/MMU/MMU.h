@@ -8,6 +8,11 @@ class MMU {
         uint8_t interrupt_enable = memory[0xFFFF]; // IE register
         uint8_t interrupt_flags = memory[0xFF0F];  // IF register
 
+        uint16_t DIV = 0;
+        uint16_t TIMA = 0;
+        uint16_t TMA = 0;
+        uint16_t TAC = 0;
+
 
         MMU(Cartridge* cartridge);
         void load_game_rom(std::string ROM_location);

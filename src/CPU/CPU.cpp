@@ -1,8 +1,9 @@
 #include "CPU.h"
 #include <iostream>
 
-CPU::CPU(MMU& mmu) {
+CPU::CPU(MMU& mmu, Scheduler& scheduler) {
     this->mmu = &mmu;
+    this->scheduler = &scheduler;
     memory = mmu.memory;
     reset();
 }
@@ -11,7 +12,6 @@ void CPU::reset() {
     A = B = C = D = E = H = L = F = 0;
     SP = 0xFFFE;
     PC = 0x0100;
-    DIV = TIMA = TMA = TAC = 0;
     timer_cycles = divider_cycles = 0;
     halted = IME = false;
 }
@@ -43,41 +43,6 @@ void CPU::handleInterrupts() {
             mmu->interrupt_flags &= ~0x08;
         } else if (interrupt_flags & 0x10) {
             mmu->interrupt_flags &= ~0x10;
-        }
-    }
-}
-
-void CPU::updateTimer(int cycles) {
-    divider_cycles += cycles;
-    if (divider_cycles >= 256) {
-        DIV++;
-        divider_cycles -= 256;
-    }
-    if (TAC & 0x04) {
-        int clockFrequency = 0;
-        switch (TAC & 0x03) {
-            case 0x00: {// 4096 Hz
-                clockFrequency = 1024; 
-                break; 
-            } case 0x01: { // 262144 Hz
-                clockFrequency = 16;   
-                break;
-            }case 0x02: {  // 65536 Hz
-                clockFrequency = 64;   
-                break;
-            } case 0x03: { // 16384 Hz
-                clockFrequency = 256;  
-                break;
-            }
-        }
-        timer_cycles += cycles;
-        if (timer_cycles >= clockFrequency) {
-            TIMA++;
-            timer_cycles -= clockFrequency;
-            if (TIMA == 0) {
-                TIMA = TMA;
-                memory[0xFF0F] |= 0x04;
-            }
         }
     }
 }
@@ -144,7 +109,7 @@ int CPU::getCycles(uint8_t opcode) {
 void CPU::executeInstruction(uint8_t opcode) {
     int cycles = getCycles(opcode);
     decodeAndExecute(opcode);
-    updateTimer(cycles);
+    scheduler->increment(cycles);
     handleInterrupts();
 }
 
@@ -2303,8 +2268,5 @@ void CPU::step() {
         return;
     }
     uint8_t instruction = this->mmu->read_byte(PC++);
-
-    std::cout << "PC: " << std::hex << (int)PC << " Instruction: " << std::hex << (int)instruction << std::endl;
-
     decodeAndExecute(instruction);
 }

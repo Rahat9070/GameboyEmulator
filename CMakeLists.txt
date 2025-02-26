@@ -13,6 +13,7 @@ set(SOURCES
     src/MBC/MBC.cpp
     src/MMU/MMU.cpp
     src/Render/render.cpp
+    src/Scheduler/scheduler.cpp
 )
 
 # Create executable
