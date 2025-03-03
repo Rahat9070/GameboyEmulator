@@ -1,12 +1,7 @@
 // filepath: /home/rahat/6CCS3PRJ/GameboyEmulator/main.cpp
 #include "src/Render/render.h"
-#include "src/CPU/CPU.h"
-#include "src/Scheduler/scheduler.h"
 #include "src/Cartridge/cartridge.h"
-#include "src/MMU/MMU.h"
-
-#include <iostream>
-#include <string>
+#include "src/gameboy.h"
 
 bool isValidROMFile(const std::string& filename) {
     return filename.size() > 3 && filename.substr(filename.size() - 3) == ".gb";
@@ -24,9 +19,7 @@ int main(int argc, char* argv[]) {
     }
     Renderer renderer;
     Cartridge cartridge(directory);
-    MMU mmu(&cartridge);
-    Scheduler scheduler(&mmu);
-    CPU cpu(mmu, scheduler);
+    Gameboy gameboy(&cartridge);
     if (!renderer.init("Gameboy Emulator", 640, 480)) {
         return -1;
     }
@@ -34,15 +27,14 @@ int main(int argc, char* argv[]) {
     bool running = true;
     SDL_Event event;
 
-    mmu.load_game_rom(directory);
     while (running) {
         while (SDL_PollEvent(&event)) {
             if (event.type == SDL_QUIT) {
                 running = false;
             }
         }
+        gameboy.step();
 
-        cpu.step();
         renderer.clear();
         renderer.drawRect(50, 50, 100, 100, {255, 0, 0, 255});
         renderer.present();

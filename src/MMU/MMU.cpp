@@ -21,7 +21,6 @@ uint8_t MMU::read_byte(uint16_t address) {
                 return 0xFF;
         }
     }
-
     if (address == 0xff0f)
         return memory[0xFF0F];
 
@@ -37,4 +36,60 @@ uint8_t MMU::read_byte(uint16_t address) {
         return cartridge->MBC_read(address);
 
     return memory[address];
+}
+
+void MMU::write_byte(uint16_t address, uint8_t value) {
+    if (address == 0xFF40) {
+        memory[address] = value;
+        
+        return;
+    }
+    if (address >= 0xFEA0 && address <= 0xFEFF) {
+        return;
+    }
+    if (address == 0xFF46) {
+        uint16_t source = value << 8;
+        for (int i = 0; i < 160; i++) {
+            memory[0xFE00 + i] = read_byte(source + i);
+        }
+        return;
+    }
+
+    else if (address == 0xFF04)
+        DIV = 0;
+    else if (address == 0xFF05)
+        TIMA = value;
+    else if (address == 0xFF06)
+        TMA = value;
+    else if (address == 0xFF07)
+        TAC = value;
+    
+    if (address < 0x8000) {
+        cartridge->MBC_write(address, value);
+    } else if (address >= 0xA000 && address <= 0xBFFF) {
+        cartridge->MBC_write(address, value);
+    } else {
+        memory[address] = value;
+    }
+    
+    if (address >= 0x8000 && address <= 0x97FF) {
+        updateTile(address, value);
+    }
+}
+
+void MMU::updateTile(uint16_t address, uint8_t value) {
+    uint16_t addres = address & 0xFFFE;
+
+    uint16_t tile = (address >> 4) & 511;
+    uint16_t y = (address >> 1) & 7;
+
+    uint8_t index;
+    uint8_t x = 0;
+    for (x; x < 8; x++) {
+        index = 1 << (7 - x);
+        tiles[tile].pixels[y][x] = ((memory[addres] & index) ? 1 : 0) + ((memory[addres + 1] & index) ? 2 : 0);
+    }
+}
+
+void MMU::updateSprite(uint16_t address, uint8_t value) {
 }

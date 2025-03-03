@@ -14,6 +14,8 @@ set(SOURCES
     src/MMU/MMU.cpp
     src/Render/render.cpp
     src/Scheduler/scheduler.cpp
+    src/PPU/PPU.cpp
+    src/gameboy.cpp
 )
 
 # Create executable
