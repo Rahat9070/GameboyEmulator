@@ -13,7 +13,20 @@ void CPU::reset() {
     SP = 0xFFFE;
     PC = 0x0100;
     timer_cycles = divider_cycles = 0;
-    halted = IME = false;
+    halted = (mmu->interrupt_enable & mmu->interrupt_flags) == 0;
+    IME = false;
+}
+
+void CPU::executeInstruction(uint8_t opcode) {
+    if (checkInterrupts()) {
+        handleInterrupts();
+        scheduler->increment(20);
+    }
+    else {
+        int cycles = getCycles(opcode);
+        decodeAndExecute(opcode);
+        scheduler->increment(cycles);
+    }
 }
 
 bool CPU::getZeroFlag() { return F & 0x80; }
@@ -25,6 +38,38 @@ void CPU::setZeroFlag(bool value) { F = (F & ~0x80) | (value << 7); }
 void CPU::setSubtractFlag(bool value) { F = (F & ~0x40) | (value << 6); }
 void CPU::setHalfCarryFlag(bool value) { F = (F & ~0x20) | (value << 5); }
 void CPU::setCarryFlag(bool value) { F = (F & ~0x10) | (value << 4); }
+
+bool CPU::checkInterrupts() {
+    if (!(IME & 0x01)) {
+        return false;
+    }
+    if (mmu->read_byte(0xFFFF) & mmu->read_byte(0xFF0F) & 0x0F) {
+        halted = false;
+    }
+    if (mmu->is_interrupt_enabled(mmu->VBLANK) && mmu->is_interrupt_flag_enabled(mmu->VBLANK)) {
+        updateInterrupt(mmu->VBLANK, 0x40);
+        return true;
+    }
+    if (mmu->is_interrupt_enabled(mmu->LCD) && mmu->is_interrupt_flag_enabled(mmu->LCD)) {
+        updateInterrupt(mmu->LCD, 0x48);
+        return true;
+    }
+    if (mmu->is_interrupt_enabled(mmu->TIMER) && mmu->is_interrupt_flag_enabled(mmu->TIMER)) {
+        updateInterrupt(mmu->TIMER, 0x50);
+        return true;
+    }
+    return false;
+}
+
+void CPU::updateInterrupt(uint8_t interruptFlag, uint8_t pc) {
+    SP -= 2;
+    mmu->write_byte(SP, (pc & 0xFF));
+    mmu->write_byte(SP, (pc & 0xFF) >> 8);
+    IME = false;
+    uint8_t value = mmu->read_byte(0xFF0F);
+    mmu->write_byte(0xFF0F, value | interruptFlag);
+    halted = false;
+}
 
 void CPU::handleInterrupts() {
     if (IME == true) return;
@@ -105,14 +150,6 @@ int CPU::getCycles(uint8_t opcode) {
     }
     return instructionCycles[opcode];
 }
-
-void CPU::executeInstruction(uint8_t opcode) {
-    int cycles = getCycles(opcode);
-    decodeAndExecute(opcode);
-    scheduler->increment(cycles);
-    handleInterrupts();
-}
-
 
 void CPU::decodeAndExecute(uint8_t opcode) {
     switch (opcode) {

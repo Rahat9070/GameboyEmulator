@@ -7,7 +7,6 @@
 #include "Scheduler/scheduler.h"
 #include "Cartridge/cartridge.h"
 
-// Test
 class Gameboy {
     Cartridge *cartridge;
     CPU *cpu;
@@ -17,5 +16,4 @@ class Gameboy {
     public:
         Gameboy(Cartridge* cartridge);
         void step();
-        void run();
 };

@@ -41,7 +41,6 @@ uint8_t MMU::read_byte(uint16_t address) {
 void MMU::write_byte(uint16_t address, uint8_t value) {
     if (address == 0xFF40) {
         memory[address] = value;
-        
         return;
     }
     if (address >= 0xFEA0 && address <= 0xFEFF) {
@@ -50,7 +49,7 @@ void MMU::write_byte(uint16_t address, uint8_t value) {
     if (address == 0xFF46) {
         uint16_t source = value << 8;
         for (int i = 0; i < 160; i++) {
-            memory[0xFE00 + i] = read_byte(source + i);
+            write_byte(0xFE00 + i, read_byte((value << 8) + i));
         }
         return;
     }
@@ -75,6 +74,7 @@ void MMU::write_byte(uint16_t address, uint8_t value) {
     if (address >= 0x8000 && address <= 0x97FF) {
         updateTile(address, value);
     }
+    return;
 }
 
 void MMU::updateTile(uint16_t address, uint8_t value) {
@@ -90,6 +90,12 @@ void MMU::updateTile(uint16_t address, uint8_t value) {
         tiles[tile].pixels[y][x] = ((memory[addres] & index) ? 1 : 0) + ((memory[addres + 1] & index) ? 2 : 0);
     }
 }
-
 void MMU::updateSprite(uint16_t address, uint8_t value) {
+}
+
+bool MMU::is_interrupt_enabled(uint8_t interruptFlag) {
+    return (interrupt_enable & interruptFlag);
+}
+bool MMU::is_interrupt_flag_enabled(uint8_t interruptFlag) {
+    return (interrupt_flags & interruptFlag);
 }
