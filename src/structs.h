@@ -7,6 +7,7 @@ struct Colour {
     uint8_t g;
     uint8_t b;
     uint8_t a;
+    uint8_t colours[4];
 }; 
 
 struct Sprite {

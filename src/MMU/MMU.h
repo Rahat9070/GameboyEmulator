@@ -34,5 +34,18 @@ class MMU {
         bool is_interrupt_enabled(uint8_t interruptFlag);
         bool is_interrupt_flag_enabled(uint8_t interruptFlag);
 
+        Colour *colour;
+        const Colour palette_colours[4] = {
+            {255, 255, 255, 255},
+            {192, 192, 192, 255},
+            {96, 96, 96, 255},
+            {0, 0, 0, 255},
+        };
+        Colour palette_BGP[4] = {
+            {255, 255, 255, 255},
+            {0, 0, 0, 255},
+            {0, 0, 0, 255},
+            {0, 0, 0, 255},
+        };
     private:
 };

@@ -17,9 +17,9 @@ int main(int argc, char* argv[]) {
         std::cerr << "Error: The file must have a .gb extension" << std::endl;
         return -1;
     }
-    Renderer renderer;
     Cartridge cartridge(directory);
     Gameboy gameboy(&cartridge);
+    Renderer renderer(gameboy.cpu, gameboy.ppu, gameboy.mmu);
     if (!renderer.init("Gameboy Emulator", 640, 480)) {
         return -1;
     }

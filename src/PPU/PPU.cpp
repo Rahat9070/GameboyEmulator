@@ -34,7 +34,7 @@ void PPU::render_background() {
                 break;
             }
             int colour = mmu->read_byte(0x8000 + tile * 16 + y * 2);
-            // framebuffer[offset + pixel] = mmu->colours[colour];
+            framebuffer[offset + pixel] = mmu->colour[colour];
             pixel++;
         }
         x = 0;
@@ -42,7 +42,7 @@ void PPU::render_background() {
 }
 
 void PPU::render_sprites() {
-
+    
 }
 
 void PPU::PPU::render_window() {

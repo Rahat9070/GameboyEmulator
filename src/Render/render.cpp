@@ -1,30 +1,32 @@
 #include "render.h"
 #include <iostream>
 
-Renderer::Renderer() : window(nullptr), renderer(nullptr) {}
-
-Renderer::~Renderer() {
-    cleanup();
+Renderer::Renderer(CPU *cpu, PPU *ppu, MMU *mmu) : window(nullptr), renderer(nullptr) {
+    this->cpu = cpu;
+    this->ppu = ppu;
+    this->mmu = mmu;
 }
 
 bool Renderer::init(const char* title, int width, int height) {
+    view_pixels.fill(0xFF);
+
+    SDL_Init(SDL_INIT_VIDEO);
+    SDL_CreateWindowAndRenderer(gb_width, gb_height, 0, &window, &renderer);
+    SDL_SetWindowTitle(window, title);
+    texture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_STREAMING, gb_width, gb_height);
+
     if (SDL_Init(SDL_INIT_VIDEO) < 0) {
         std::cerr << "SDL could not initialize! SDL_Error: " << SDL_GetError() << std::endl;
         return false;
     }
-
-    window = SDL_CreateWindow(title, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, width, height, SDL_WINDOW_SHOWN);
     if (!window) {
         std::cerr << "Window could not be created! SDL_Error: " << SDL_GetError() << std::endl;
         return false;
     }
-
-    renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
     if (!renderer) {
         std::cerr << "Renderer could not be created! SDL_Error: " << SDL_GetError() << std::endl;
         return false;
     }
-
     return true;
 }
 
@@ -53,4 +55,21 @@ void Renderer::cleanup() {
         window = nullptr;
     }
     SDL_Quit();
+}
+
+void Renderer::check_framerate() {
+    end_frame = std::chrono::steady_clock::now();
+    int elapsed_time = std::chrono::duration_cast<std::chrono::milliseconds>(end_frame - start_frame).count();
+    if (elapsed_time < framerate) {
+        std::this_thread::sleep_for(std::chrono::milliseconds(framerate - elapsed_time));
+    }
+    start_frame = std::chrono::steady_clock::now();
+}
+
+void Renderer::draw(){
+    for (int i = 0; i < 144 * 160; i++) {
+        Colour colour = ppu->framebuffer[i];
+        std::copy(colour.colours, colour.colours + 4, view_pixels.begin() + i * 4);
+    }
+    SDL_UpdateTexture(texture, NULL, view_pixels.data(), gb_width * sizeof(uint8_t));
 }
