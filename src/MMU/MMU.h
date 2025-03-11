@@ -14,8 +14,6 @@ class MMU {
         uint16_t TMA = 0;
         uint16_t TAC = 0;
 
-        uint8_t colours[4];
-
         Sprite sprites[40] = {Sprite()};
         
         Tile tiles[384];
@@ -33,6 +31,7 @@ class MMU {
         void updateSprite(uint16_t address, uint8_t value);
         bool is_interrupt_enabled(uint8_t interruptFlag);
         bool is_interrupt_flag_enabled(uint8_t interruptFlag);
+        void set_interrupt_flag(uint8_t interruptFlag);
 
         Colour *colour;
         const Colour palette_colours[4] = {
@@ -43,6 +42,12 @@ class MMU {
         };
         Colour palette_BGP[4] = {
             {255, 255, 255, 255},
+            {0, 0, 0, 255},
+            {0, 0, 0, 255},
+            {0, 0, 0, 255},
+        };
+        Colour palette_OBP[4] = {
+            {0, 0, 0, 255},
             {0, 0, 0, 255},
             {0, 0, 0, 255},
             {0, 0, 0, 255},

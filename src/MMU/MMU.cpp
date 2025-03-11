@@ -6,8 +6,8 @@ MMU::MMU(Cartridge* cartridge) {
     this->cartridge = cartridge;
 }
 
-void MMU::load_game_rom(std::string ROM_location) {
-    std::ifstream DMG_ROM(ROM_location, std::ios::binary);
+void MMU::load_game_rom(std::string location) {
+    std::ifstream DMG_ROM(location, std::ios::binary);
     DMG_ROM.seekg(0, std::ios::end);
     long size = DMG_ROM.tellg();
     DMG_ROM.seekg(0, std::ios::beg);
@@ -21,7 +21,17 @@ uint8_t MMU::read_byte(uint16_t address) {
                 return 0xFF;
         }
     }
-    if (address == 0xff0f)
+
+    if (address == 0xff04)
+        return DIV;
+    if (address == 0xff05)
+        return TIMA;
+    if (address == 0xff06)
+        return TMA;
+    if (address == 0xff07)
+        return TAC;
+    
+    if (address == 0xFF0F)
         return memory[0xFF0F];
 
     if (address < 0x100)
@@ -77,20 +87,39 @@ void MMU::write_byte(uint16_t address, uint8_t value) {
     return;
 }
 
-void MMU::updateTile(uint16_t address, uint8_t value) {
-    uint16_t addres = address & 0xFFFE;
+void MMU::updateTile(uint16_t addres, uint8_t value) {
+    uint16_t address = addres & 0xFFFE;
 
-    uint16_t tile = (address >> 4) & 511;
-    uint16_t y = (address >> 1) & 7;
+    uint16_t tile = (addres >> 4) & 511;
+    uint16_t y = (addres >> 1) & 7;
 
     uint8_t index;
     uint8_t x = 0;
     for (x; x < 8; x++) {
         index = 1 << (7 - x);
-        tiles[tile].pixels[y][x] = ((memory[addres] & index) ? 1 : 0) + ((memory[addres + 1] & index) ? 2 : 0);
+        tiles[tile].pixels[y][x] = ((memory[address] & index) ? 1 : 0) + ((memory[address + 1] & index) ? 2 : 0);
     }
 }
-void MMU::updateSprite(uint16_t address, uint8_t value) {
+void MMU::updateSprite(uint16_t addres, uint8_t value) {
+    uint16_t address = addres - 0xFE00;
+    Sprite *sprite = &sprites[address >> 2];
+    sprite->ready = false;
+    switch (address & 3) {
+        case 0:
+            sprite->y = value - 16;
+            break;
+        case 1:
+            sprite->x = value - 8;
+            break;
+        case 2:
+            sprite->tile = value;
+            break;
+        case 3:
+            sprite->options.value = value;
+            sprite->colourPalette = (sprite->options.paletteNumber == 0) ? palette_BGP : palette_OBP;
+            sprite->ready = true;
+            break;
+    }
 }
 
 bool MMU::is_interrupt_enabled(uint8_t interruptFlag) {
@@ -98,4 +127,10 @@ bool MMU::is_interrupt_enabled(uint8_t interruptFlag) {
 }
 bool MMU::is_interrupt_flag_enabled(uint8_t interruptFlag) {
     return (interrupt_flags & interruptFlag);
+}
+
+void MMU::set_interrupt_flag(uint8_t interruptFlag) {
+    interrupt_flags |= interruptFlag;
+    write_byte(0xFF0F, interrupt_flags);
+    return;
 }

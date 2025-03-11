@@ -7,6 +7,7 @@
 #include "MMU/MMU.h"
 #include "Scheduler/scheduler.h"
 #include "Cartridge/cartridge.h"
+#include "Render/render.h"
 
 class Gameboy {
     Cartridge *cartridge;
@@ -16,6 +17,7 @@ class Gameboy {
         MMU *mmu;
         Scheduler *scheduler;
         PPU *ppu;
+        Renderer *renderer;
         Gameboy(Cartridge* cartridge);
         void step();
 };

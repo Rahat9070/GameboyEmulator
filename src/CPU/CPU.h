@@ -75,6 +75,7 @@ class CPU
         void decodeAndExecute(uint8_t opcode);
         void executeCBInstruction(uint8_t cb_opcode);
         void step();
+        int getCycles(uint8_t opcode);
 
 
     private:
@@ -95,6 +96,5 @@ class CPU
         void BIT(uint8_t& register1, uint8_t bit);
         void RES(uint8_t& register1, uint8_t bit);
         void SET(uint8_t& register1, uint8_t bit);
-        int getCycles(uint8_t opcode);
         void updateInterrupt(uint8_t interruptFlag, uint8_t pc);
 };

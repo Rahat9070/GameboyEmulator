@@ -1,5 +1,3 @@
-// filepath: /home/rahat/6CCS3PRJ/GameboyEmulator/main.cpp
-#include "src/Render/render.h"
 #include "src/Cartridge/cartridge.h"
 #include "src/gameboy.h"
 
@@ -19,27 +17,16 @@ int main(int argc, char* argv[]) {
     }
     Cartridge cartridge(directory);
     Gameboy gameboy(&cartridge);
-    Renderer renderer(gameboy.cpu, gameboy.ppu, gameboy.mmu);
-    if (!renderer.init("Gameboy Emulator", 640, 480)) {
-        return -1;
-    }
 
     bool running = true;
-    SDL_Event event;
-
     while (running) {
+        SDL_Event event;
         while (SDL_PollEvent(&event)) {
             if (event.type == SDL_QUIT) {
                 running = false;
             }
         }
         gameboy.step();
-
-        renderer.clear();
-        renderer.drawRect(50, 50, 100, 100, {255, 0, 0, 255});
-        renderer.present();
     }
-
-    renderer.cleanup();
     return 0;
 }

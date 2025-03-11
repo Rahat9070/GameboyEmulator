@@ -50,11 +50,11 @@ class PPU {
     
         bool can_render = false;
     
-        void step();
+        void step(int cycles);
         void compare_ly_lyc();
         PPU(CPU *cpu, MMU *mmu);
         void render_scanline();
         void render_background();
-        void render_sprites();
+        void render_sprites(bool* rows);
         void render_window();
 };

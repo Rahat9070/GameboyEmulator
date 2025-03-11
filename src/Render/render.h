@@ -24,6 +24,7 @@ public:
     void drawRect(int x, int y, int width, int height, SDL_Color color);
     void cleanup();
     void draw();
+    void render();
 
     int gb_width = 160;
     int gb_height = 144;

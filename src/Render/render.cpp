@@ -11,7 +11,7 @@ bool Renderer::init(const char* title, int width, int height) {
     view_pixels.fill(0xFF);
 
     SDL_Init(SDL_INIT_VIDEO);
-    SDL_CreateWindowAndRenderer(gb_width, gb_height, 0, &window, &renderer);
+    SDL_CreateWindowAndRenderer(gb_width * 2, gb_height * 2, 0, &window, &renderer);
     SDL_SetWindowTitle(window, title);
     texture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_STREAMING, gb_width, gb_height);
 
@@ -72,4 +72,16 @@ void Renderer::draw(){
         std::copy(colour.colours, colour.colours + 4, view_pixels.begin() + i * 4);
     }
     SDL_UpdateTexture(texture, NULL, view_pixels.data(), gb_width * sizeof(uint8_t));
+}
+
+void Renderer::render() {
+    check_framerate();
+
+    SDL_SetTextureColorMod(texture, 255, 255, 255);
+    SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
+    SDL_RenderClear(renderer);
+    SDL_SetRenderTarget(renderer, texture);
+    draw();
+    SDL_RenderCopy(renderer, texture, NULL, &view_rect);
+    SDL_RenderPresent(renderer);
 }
