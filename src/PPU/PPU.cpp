@@ -4,6 +4,11 @@ PPU::PPU(CPU *cpu, MMU *mmu) {
     this->cpu = cpu;
     this->mmu = mmu;
     ticks = 0;
+    control = (Control *) &mmu->memory[0xFF40];
+    scrollX = &mmu->memory[0xFF43];
+    scrollY = &mmu->memory[0xFF42];
+    scanline = &mmu->memory[0xFF44];
+    stat = (Stat *) &mmu->memory[0xFF41];
 }
 
 void PPU::render_scanline() {
@@ -16,7 +21,7 @@ void PPU::render_scanline() {
 void PPU::step(int cycles) {
     modeclock += cycles;
 
-    if (!control->lcdEnable) {
+    if (control && !control->lcdEnable) {
         mode = 0;
         if (modeclock >= 70224)
             modeclock -= 70224;

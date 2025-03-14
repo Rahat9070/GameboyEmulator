@@ -17,27 +17,23 @@ void CPU::reset() {
     IME = false;
 }
 
-void CPU::executeInstruction(uint8_t opcode) {
-    if (checkInterrupts()) {
-        handleInterrupts();
-        scheduler->increment(20);
-    }
-    else {
-        int cycles = getCycles(opcode);
-        decodeAndExecute(opcode);
-        scheduler->increment(cycles);
-    }
-}
-
 bool CPU::getZeroFlag() { return F & 0x80; }
 bool CPU::getSubtractFlag() { return F & 0x40; }
 bool CPU::getHalfCarryFlag() { return F & 0x20; }
 bool CPU::getCarryFlag() { return F & 0x10; }
 
-void CPU::setZeroFlag(bool value) { F = (F & ~0x80) | (value << 7); }
-void CPU::setSubtractFlag(bool value) { F = (F & ~0x40) | (value << 6); }
-void CPU::setHalfCarryFlag(bool value) { F = (F & ~0x20) | (value << 5); }
-void CPU::setCarryFlag(bool value) { F = (F & ~0x10) | (value << 4); }
+void CPU::setZeroFlag(bool value) { 
+    F = (F & ~0x80) | (value << 7); 
+}
+void CPU::setSubtractFlag(bool value) { 
+    F = (F & ~0x40) | (value << 6); 
+}
+void CPU::setHalfCarryFlag(bool value) { 
+    F = (F & ~0x20) | (value << 5); 
+}
+void CPU::setCarryFlag(bool value) { 
+    F = (F & ~0x10) | (value << 4); 
+}
 
 bool CPU::checkInterrupts() {
     if (!(IME & 0x01)) {
@@ -151,7 +147,7 @@ int CPU::getCycles(uint8_t opcode) {
     return instructionCycles[opcode];
 }
 
-void CPU::decodeAndExecute(uint8_t opcode) {
+void CPU::executeInstruction(uint8_t opcode) {
     switch (opcode) {
         case 0x00: { // NOP
             break;
@@ -2298,12 +2294,4 @@ void CPU::RES(uint8_t& register1, uint8_t bit) {
 }
 void CPU::SET(uint8_t& register1, uint8_t bit) {
     register1 |= (1 << bit); 
-}
-
-void CPU::step() {
-    if (halted) {
-        return;
-    }
-    uint8_t instruction = this->mmu->read_byte(PC++);
-    decodeAndExecute(instruction);
 }

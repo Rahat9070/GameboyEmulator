@@ -17,13 +17,12 @@ void Gameboy::step() {
     if (cpu->checkInterrupts()) {
         cpu->handleInterrupts();
         cycles = 20;
-        scheduler->increment(cycles);
     }
     else {
         cycles = cpu->getCycles(cpu->mmu->read_byte(cpu->PC++));
-        cpu->decodeAndExecute(cpu->mmu->read_byte(cpu->PC));
-        scheduler->increment(cycles);
+        cpu->executeInstruction(cpu->mmu->read_byte(cpu->PC));
     }
+    scheduler->increment(cycles);
     ppu->step(cycles);
     renderer->render();    
 }

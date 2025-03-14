@@ -11,6 +11,7 @@ class CPU
     public:
         CPU(MMU& mmu, Scheduler& scheduler);
 
+        // Instruction cycles
         const uint8_t instructionCycles[256] = {
             4, 12, 8, 8, 4, 4, 8, 4, 20, 8, 8, 8, 4, 4, 8, 4, // 0x00 - 0x0F
             4, 12, 8, 8, 4, 4, 8, 4, 12, 8, 8, 8, 4, 4, 8, 4, // 0x10 - 0x1F
@@ -67,14 +68,11 @@ class CPU
 
         // CPU operations
         void reset();     
-        void executeInstruction(uint8_t opcode);
         void handleInterrupts();
         bool checkInterrupts();
-
-        void fetch(); // opcode
-        void decodeAndExecute(uint8_t opcode);
+        void updateInterrupt(uint8_t interruptFlag, uint8_t pc);
+        void executeInstruction(uint8_t opcode);
         void executeCBInstruction(uint8_t cb_opcode);
-        void step();
         int getCycles(uint8_t opcode);
 
 
@@ -96,5 +94,4 @@ class CPU
         void BIT(uint8_t& register1, uint8_t bit);
         void RES(uint8_t& register1, uint8_t bit);
         void SET(uint8_t& register1, uint8_t bit);
-        void updateInterrupt(uint8_t interruptFlag, uint8_t pc);
 };

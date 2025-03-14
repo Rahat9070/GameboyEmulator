@@ -71,13 +71,13 @@ void Renderer::draw(){
         Colour colour = ppu->framebuffer[i];
         std::copy(colour.colours, colour.colours + 4, view_pixels.begin() + i * 4);
     }
-    SDL_UpdateTexture(texture, NULL, view_pixels.data(), gb_width * sizeof(uint8_t));
+    SDL_UpdateTexture(texture, NULL, view_pixels.data(), gb_width * 2);
 }
 
 void Renderer::render() {
     check_framerate();
 
-    SDL_SetTextureColorMod(texture, 255, 255, 255);
+    SDL_SetTextureColorMod(texture, 155, 188, 15);
     SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
     SDL_RenderClear(renderer);
     SDL_SetRenderTarget(renderer, texture);
