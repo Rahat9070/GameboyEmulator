@@ -1,4 +1,7 @@
-# GameboyEmulator
+# Game Boy Emulator
 Gameboy Emulator written in c++
 
-xargs sudo apt install -y < ../requirements.txt
+### Setup
+```
+$ xargs sudo apt install -y < ../requirements.txt
+```
