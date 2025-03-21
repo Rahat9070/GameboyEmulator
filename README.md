@@ -10,6 +10,17 @@ or on MacOS
 ```
 xargs brew install < ./requirements.txt
 ```
-If these commands return, you can install each library within `requirements.txt` seperately.
+If these commands return errors, you can install each library within `requirements.txt` seperately.
 
 ## Build
+To build and create the application, run the commands below within the directory
+```
+cmake .
+make
+```
+
+## Usage
+To run the application
+```
+./GameboyEmulator <path_to_rom_file>
+```
