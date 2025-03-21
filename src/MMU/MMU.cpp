@@ -4,6 +4,9 @@
 
 MMU::MMU(Cartridge* cartridge) {
     this->cartridge = cartridge;
+    for (int i = 0; i < 0xFFFF; i++) {
+        memory[i] = 0;
+    }
 }
 
 void MMU::load_game_rom(std::string location) {
@@ -14,22 +17,30 @@ void MMU::load_game_rom(std::string location) {
     DMG_ROM.read((char *)memory, 0x100);
 }
 
+bool MMU::is_interrupt_enabled(uint8_t interruptFlag) {
+    return (interrupt_enable & interruptFlag);
+}
+bool MMU::is_interrupt_flag_enabled(uint8_t interruptFlag) {
+    return (interrupt_flags & interruptFlag);
+}
+void MMU::set_interrupt_flag(uint8_t interruptFlag) {
+    interrupt_flags |= interruptFlag;
+    write_byte(0xFF0F, interrupt_flags);
+    return;
+}
 uint8_t MMU::read_byte(uint16_t address) {
-    if (address == 0xff00) {
-        switch (memory[0xff00] & 0x30) {  // Mask `00110000` to check which SELECT
-            default:
-                return 0xFF;
-        }
-    }
-
-    if (address == 0xff04)
+    if (address == 0xFF04) {
         return DIV;
-    if (address == 0xff05)
+    }
+    if (address == 0xFF05) {
         return TIMA;
-    if (address == 0xff06)
+    }
+    if (address == 0xFF06) {
         return TMA;
-    if (address == 0xff07)
+    }
+    if (address == 0xFF07) {
         return TAC;
+    }
     
     if (address == 0xFF0F)
         return memory[0xFF0F];
@@ -120,17 +131,4 @@ void MMU::updateSprite(uint16_t addres, uint8_t value) {
             sprite->ready = true;
             break;
     }
-}
-
-bool MMU::is_interrupt_enabled(uint8_t interruptFlag) {
-    return (interrupt_enable & interruptFlag);
-}
-bool MMU::is_interrupt_flag_enabled(uint8_t interruptFlag) {
-    return (interrupt_flags & interruptFlag);
-}
-
-void MMU::set_interrupt_flag(uint8_t interruptFlag) {
-    interrupt_flags |= interruptFlag;
-    write_byte(0xFF0F, interrupt_flags);
-    return;
 }

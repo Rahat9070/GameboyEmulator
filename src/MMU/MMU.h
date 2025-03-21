@@ -14,24 +14,13 @@ class MMU {
         uint16_t TMA = 0;
         uint16_t TAC = 0;
 
-        Sprite sprites[40] = {Sprite()};
-        
-        Tile tiles[384];
-
         static constexpr uint8_t VBLANK = (1 << 0);
         static constexpr uint8_t LCD = (1 << 1);
         static constexpr uint8_t TIMER = (1 << 2);
         static constexpr uint8_t SERIAL = (1 << 3);
 
-        MMU(Cartridge* cartridge);
-        void load_game_rom(std::string ROM_location);
-        uint8_t read_byte(uint16_t address);
-        void write_byte(uint16_t address, uint8_t value);
-        void updateTile(uint16_t address, uint8_t value);
-        void updateSprite(uint16_t address, uint8_t value);
-        bool is_interrupt_enabled(uint8_t interruptFlag);
-        bool is_interrupt_flag_enabled(uint8_t interruptFlag);
-        void set_interrupt_flag(uint8_t interruptFlag);
+        Sprite sprites[40] = {Sprite()};
+        Tile tiles[384];
 
         Colour *colour;
         const Colour palette_colours[4] = {
@@ -52,5 +41,14 @@ class MMU {
             {0, 0, 0, 255},
             {0, 0, 0, 255},
         };
-    private:
+
+        MMU(Cartridge* cartridge);
+        void load_game_rom(std::string ROM_location);
+        uint8_t read_byte(uint16_t address);
+        void write_byte(uint16_t address, uint8_t value);
+        void updateTile(uint16_t address, uint8_t value);
+        void updateSprite(uint16_t address, uint8_t value);
+        bool is_interrupt_enabled(uint8_t interruptFlag);
+        bool is_interrupt_flag_enabled(uint8_t interruptFlag);
+        void set_interrupt_flag(uint8_t interruptFlag);
 };
