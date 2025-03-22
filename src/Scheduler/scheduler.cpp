@@ -8,7 +8,7 @@ Scheduler::Scheduler(MMU *mmu) {
 
 void Scheduler::increment(uint8_t cycles) {
     timer_cycles += cycles;
-    timer_cycles %= 4194304; // Gameboy Ticks
+    timer_cycles %= 4194304; // Game Boy Ticks
     while (DIV >= 256) {
         DIV -= 256;
         mmu->DIV++;
@@ -18,24 +18,25 @@ void Scheduler::increment(uint8_t cycles) {
         TIMA += cycles;
         int threshold = 0;
         switch (mmu->TAC & 0x03) {
-            case 0:
+            case 0: {
                 threshold = 1024;
                 break;
-            case 1:
+            } case 1: {
                 threshold = 16;
                 break;
-            case 2:
+            } case 2: {
                 threshold = 64;
                 break;
-            case 3:
+            } case 3: {
                 threshold = 256;
                 break;
+            }
         }
         while (TIMA >= threshold) {
             TIMA -= threshold;
             if (mmu->TIMA == 0xFF) {
                 mmu->TIMA = mmu->read_byte(0xFF06);
-                // interrupts->set_interrupt_flag(INTERRUPT_TIMER);
+                mmu->set_interrupt_flag(mmu->TIMER);
             } else {
                 mmu->TIMA++;
             }
