@@ -4,16 +4,32 @@ PPU::PPU(CPU *cpu, MMU *mmu) {
     this->cpu = cpu;
     this->mmu = mmu;
     ticks = 0;
-    control = (Control *) &mmu->memory[0xFF40];
     scrollX = &mmu->memory[0xFF43];
     scrollY = &mmu->memory[0xFF42];
     scanline = &mmu->memory[0xFF44];
-    stat = (Stat *) &mmu->memory[0xFF41];
+
+    uint8_t *lcdc = &mmu->memory[0xFF40];
+    lcd_enable = (*lcdc >> 7) & 1;
+    window_display_select = (*lcdc >> 6) & 1;
+    window_enable = (*lcdc >> 5) & 1;
+    bg_window_data_select = (*lcdc >> 4) & 1;
+    bg_display_select = (*lcdc >> 3) & 1;
+    sprite_size = (*lcdc >> 2) & 1;
+    sprite_display_enable = (*lcdc >> 1) & 1;
+    background_display = (*lcdc >> 0) & 1;
+
+    uint8_t *stat = &mmu->memory[0xFF41];
+    mode_flag = (*stat >> 1) & 1;
+    coincidence_flag = (*stat >> 2) & 1;
+    hblank_interrupt = (*stat >> 3) & 1;
+    vblank_interrupt = (*stat >> 4) & 1;
+    oam_interrupt = (*stat >> 5) & 1;
+    coincidence_interrupt = (*stat >> 6) & 1;
 }
 
 void PPU::render_scanline() {
     bool rows[160] = {0};
-    render_background();
+    render_background(rows);
     render_sprites(rows);
     render_window();
 }
@@ -21,7 +37,7 @@ void PPU::render_scanline() {
 void PPU::step(int cycles) {
     modeclock += cycles;
 
-    if (control && !control->lcdEnable) {
+    if (lcd_enable == 0) {
         mode = 0;
         if (modeclock >= 70224)
             modeclock -= 70224;
@@ -29,73 +45,79 @@ void PPU::step(int cycles) {
     }
 
     switch (mode) {
-        case 0:  // HBLANK
+        case 0:  { // HBLANK
             if (modeclock >= 204) {
                 modeclock -= 204;
                 mode = 2;
 
                 *scanline += 1;
                 uint8_t lyc = mmu->read_byte(0xFF45);
-                stat->coincidence_flag = int(lyc == *scanline);
+                coincidence_flag = int(lyc == *scanline);
 
-                if (lyc == *scanline && stat->coincidence_interrupt)
+                if (lyc == *scanline && coincidence_interrupt)
                     mmu->set_interrupt_flag(mmu->LCD);
 
                 if (*scanline == 144) {
                     mode = 1;
                     can_render = true;
                     mmu->set_interrupt_flag(mmu->VBLANK);
-                    if (stat->vblank_interrupt)
+                    if (vblank_interrupt)
                         mmu->set_interrupt_flag(mmu->LCD);
-                } else if (stat->oam_interrupt)
+                } else if (oam_interrupt)
                     mmu->set_interrupt_flag(mmu->LCD);
 
                 mmu->write_byte(0xff41, (mmu->read_byte(0xff41) & 0xFC) | (mode & 3));
             }
             break;
-        case 1:  // VBLANK
+        } case 1:  { // VBLANK
             if (modeclock >= 456) {
                 modeclock -= 456;
                 *scanline += 1;
                 uint8_t lyc = mmu->read_byte(0xFF45);
-                stat->coincidence_flag = int(lyc == *scanline);
+                coincidence_flag = int(lyc == *scanline);
 
-                if (lyc == *scanline && stat->coincidence_interrupt)
+                if (lyc == *scanline && coincidence_interrupt)
                     mmu->set_interrupt_flag(mmu->LCD);
                 if (*scanline == 153) {
                     *scanline = 0;
                     mode = 2;
                     mmu->write_byte(0xff41, (mmu->read_byte(0xff41) & 0xFC) | (mode & 3));
-                    if (stat->oam_interrupt)
+                    if (oam_interrupt)
                         mmu->set_interrupt_flag(mmu->LCD);
                 }
             }
-
             break;
-        case 2:  // OAM
+        } case 2:  { // OAM
             if (modeclock >= 80) {
                 modeclock -= 80;
                 mode = 3;
                 mmu->write_byte(0xff41, (mmu->read_byte(0xff41) & 0xFC) | (mode & 3));
             }
             break;
-        case 3:  // VRAM
+        } case 3:  { // VRAM
             if (modeclock >= 172) {
                 modeclock -= 172;
                 mode = 0;
                 render_scanline();
                 mmu->write_byte(0xff41, (mmu->read_byte(0xff41) & 0xFC) | (mode & 3));
 
-                if (stat->hblank_interrupt)
+                if (hblank_interrupt)
                     mmu->set_interrupt_flag(mmu->LCD);
             }
             break;
+        } default: {
+            break;
+        }
     }
 }
 
-void PPU::render_background() {
+void PPU::render_background(bool* rows) {
     uint16_t address = 0x9800;
 
+    if (bg_display_select == 1) {
+        address = 0x9C00;
+    }
+    
     address += ((*scrollY + *scanline) / 8 * 32) % (32 * 32);
 
     uint16_t start = address;
@@ -108,14 +130,20 @@ void PPU::render_background() {
     int pixel = 0;
     for (int i = 0; i < 21;  i++) {
         uint16_t tile_address = address + i;
+        if (tile_address >= end) {
+            tile_address = start + (address % end);
+        }
         uint8_t tile = mmu->read_byte(tile_address);
         
         for (x; x < 0; x++) {
             if (pixel >= 160) {
                 break;
             }
-            int colour = mmu->read_byte(0x8000 + tile * 16 + y * 2);
+            int colour = mmu->tiles[tile].pixels[y][x];
             framebuffer[offset + pixel] = mmu->colour[colour];
+            if (colour != 0) {
+                rows[pixel] = true;
+            }
             pixel++;
         }
         x = 0;
@@ -123,11 +151,16 @@ void PPU::render_background() {
 }
 
 void PPU::render_sprites(bool* rows) {
-    int sprite_height = control->spriteSize == 0 ? 8 : 16;
+    int sprite_height = 0;
+    if (sprite_size == 0) {
+        sprite_height = 8;
+    } else {
+        sprite_height = 16;
+    }
     bool visible_sprites[40] = {false};
     int sprite_rows = 0;
 
-    for (int i = 0; i < 40; i++) {
+    for (int i = 39; i >= 0; i--) {
         Sprite sprite = mmu->sprites[i];
         if (!sprite.ready) {
             visible_sprites[i] = false;
@@ -141,7 +174,6 @@ void PPU::render_sprites(bool* rows) {
             visible_sprites[sprite_rows] = true;
             sprite_rows++;
         }
-        sprite_rows++;
         visible_sprites[i] = sprite_rows <= 10;
     }
 
@@ -154,12 +186,11 @@ void PPU::render_sprites(bool* rows) {
         if ((sprite.x < -7) || (sprite.x >= 160))
             continue;
 
-        // Flip vertically
         int pixel_y = *scanline - sprite.y;
-        pixel_y = sprite.options.yFlip ? (7 + 8 * control->spriteSize) - pixel_y : pixel_y;
+        pixel_y = sprite.options.yFlip ? (7 + 8 * sprite_size) - pixel_y : pixel_y;
 
         for (int x = 0; x < 8; x++) {
-            int tile_num = sprite.tile & (control->spriteSize ? 0xFE : 0xFF);
+            int tile_num = sprite.tile & (sprite_size ? 0xFE : 0xFF);
             int colour = 0;
 
             int x_temp = sprite.x + x;
@@ -168,15 +199,13 @@ void PPU::render_sprites(bool* rows) {
 
             int pixelOffset = *this->scanline * 160 + x_temp;
 
-            // Flip horizontally
             uint8_t pixel_x = sprite.options.xFlip ? 7 - x : x;
 
-            if (control->spriteSize && (pixel_y >= 8))
+            if (sprite_size && (pixel_y >= 8))
                 colour = mmu->tiles[tile_num + 1].pixels[pixel_y - 8][pixel_x];
             else
                 colour = mmu->tiles[tile_num].pixels[pixel_y][pixel_x];
 
-            // Black is transparent
             if (!colour)
                 continue;
 
@@ -187,14 +216,14 @@ void PPU::render_sprites(bool* rows) {
 }
 
 void PPU::PPU::render_window() {
-    if (control->spriteDisplayEnable == 0) {
+    if (sprite_display_enable == 0) {
         return;
     }
     if (mmu->read_byte(0xFF40) > *scanline) {
         return;
     }
     uint16_t address = 0x9800;
-    if (control->windowDisplaySelect == 1) {
+    if (window_display_select == 1) {
         address = 0x9C00;
     }
     address += ((*scanline - mmu->read_byte(0xFF4A)) / 8 * 32) * 32;

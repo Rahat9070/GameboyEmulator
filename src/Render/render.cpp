@@ -11,9 +11,12 @@ bool Renderer::init(const char* title, int width, int height) {
     view_pixels.fill(0xFF);
 
     SDL_Init(SDL_INIT_VIDEO);
-    SDL_CreateWindowAndRenderer(gb_width * 2, gb_height * 2, 0, &window, &renderer);
+    SDL_CreateWindowAndRenderer(window_width, window_height, 0, &window, &renderer);
+    SDL_RenderSetLogicalSize(renderer, window_width, window_height);
+    SDL_SetWindowResizable(window, SDL_TRUE);
     SDL_SetWindowTitle(window, title);
-    texture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_STREAMING, gb_width, gb_height);
+    
+    texture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_STREAMING, window_width, window_height);
 
     if (SDL_Init(SDL_INIT_VIDEO) < 0) {
         std::cerr << "SDL could not initialize! SDL_Error: " << SDL_GetError() << std::endl;
@@ -77,7 +80,7 @@ void Renderer::draw(){
 void Renderer::render() {
     check_framerate();
 
-    SDL_SetTextureColorMod(texture, 155, 188, 15);
+    SDL_SetTextureColorMod(texture, 224, 219, 205);
     SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
     SDL_RenderClear(renderer);
     SDL_SetRenderTarget(renderer, texture);

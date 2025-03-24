@@ -29,8 +29,11 @@ public:
     int gb_width = 160;
     int gb_height = 144;
 
+    int window_width = gb_width * 2;
+    int window_height = gb_height * 2;
+
     std::array<uint8_t, 92160> view_pixels;
-    SDL_Rect view_rect = {0, 0, gb_width, gb_height};
+    SDL_Rect view_rect = {0, 0, window_width, window_height};
     SDL_Texture* texture;
 
     int framerate = 1000 / 60;

@@ -19,10 +19,10 @@ void Gameboy::step() {
         cycles = 20;
     }
     else {
-        cycles = cpu->getCycles(cpu->mmu->read_byte(cpu->PC++));
-        cpu->executeInstruction(cpu->mmu->read_byte(cpu->PC));
+        uint8_t opcode = cpu->mmu->read_byte(cpu->PC++);
+        cycles = cpu->getCycles(opcode);
+        cpu->executeInstruction(opcode);
     }
     scheduler->increment(cycles);
-    ppu->step(cycles);
     renderer->render();    
 }

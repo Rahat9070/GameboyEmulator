@@ -14,34 +14,22 @@ class PPU {
         uint8_t *scrollY;
         uint8_t *scanline;
         int mode = 0;
-
-        struct Control {
-            union {
-                struct {
-                    uint8_t bgDisplay : 1;
-                    uint8_t spriteDisplayEnable : 1;
-                    uint8_t spriteSize : 1;  // True means 8x16 tiles
-                    uint8_t bgDisplaySelect : 1;
-                    uint8_t bgWindowDataSelect : 1;
-                    uint8_t windowEnable : 1;
-                    uint8_t windowDisplaySelect : 1;
-                    uint8_t lcdEnable : 1;
-                };
-            };
-        } *control;
+        
+        uint8_t background_display = 1;
+        uint8_t sprite_display_enable = 1;
+        uint8_t sprite_size = 1;
+        uint8_t bg_display_select = 1;
+        uint8_t bg_window_data_select = 1;
+        uint8_t window_enable = 1;
+        uint8_t window_display_select = 0;
+        uint8_t lcd_enable = 1;
     
-        struct Stat {
-            union {
-                struct {
-                    uint8_t mode_flag : 2;
-                    uint8_t coincidence_flag : 1;
-                    uint8_t hblank_interrupt : 1;
-                    uint8_t vblank_interrupt : 1;
-                    uint8_t oam_interrupt : 1;
-                    uint8_t coincidence_interrupt : 1;
-                };
-            };
-        } *stat;
+        uint8_t mode_flag = 0;
+        uint8_t coincidence_flag = 0;
+        uint8_t hblank_interrupt = 0;
+        uint8_t vblank_interrupt = 0;
+        uint8_t oam_interrupt = 0;
+        uint8_t coincidence_interrupt = 0;
     
         Colour framebuffer[160 * 144];
         uint8_t background[32 * 32];
@@ -54,7 +42,7 @@ class PPU {
         void compare_ly_lyc();
         PPU(CPU *cpu, MMU *mmu);
         void render_scanline();
-        void render_background();
+        void render_background(bool* rows);
         void render_sprites(bool* rows);
         void render_window();
 };
