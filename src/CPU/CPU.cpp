@@ -5,16 +5,39 @@ CPU::CPU(MMU& mmu, Scheduler& scheduler) {
     this->mmu = &mmu;
     this->scheduler = &scheduler;
     memory = mmu.memory;
+    PC = 0;
     reset();
 }
 
+void CPU::printRegisters() {
+    std::cout << "A: " << (int)A << " B: " << (int)B << " C: " << (int)C << " D: " << (int)D << " E: " << (int)E << " H: " << (int)H << " L: " << (int)L << " F: " << (int)F << std::endl;
+    std::cout << "SP: " << SP << " PC: " << PC << std::endl;
+}
+
 void CPU::reset() {
-    A = B = C = D = E = H = L = F = 0;
+    A = 0x01;
+    B = 0x00;
+    C = 0x13;
+    D = 0x00;
+    E = 0xD8;
+    F = 0xB0;
+    H = 0x01;
+    L = 0x4D;
     SP = 0xFFFE;
     PC = 0x0100;
-    timer_cycles = divider_cycles = 0;
-    halted = (mmu->interrupt_enable & mmu->interrupt_flags) == 0;
-    IME = false;
+    setZeroFlag(true);
+    setHalfCarryFlag(true);
+    setCarryFlag(true);
+    setSubtractFlag(false);
+
+    mmu->memory[0xFF0F] = 0xE1;
+    mmu->write_byte(0xFF40, 0x91);
+    mmu->write_byte(0xFF41, 0x80);
+    mmu->DIV = 0xD3;
+    mmu->TIMA = 0x00;
+    mmu->TMA = 0x00;
+    mmu->TAC = 0xF8;
+    std::cout << "CPU Initialized" << std::endl;
 }
 
 bool CPU::getZeroFlag() { return F & 0x80; }
@@ -115,7 +138,7 @@ int CPU::getCycles(uint8_t opcode) {
             break;
         }
         case 0xCB: { // CB Prefix
-            uint8_t cb = memory[PC++];
+            uint8_t cb = memory[PC + 1];
             return CBinstructionCycles[cb];
             break;
         }
@@ -148,6 +171,8 @@ int CPU::getCycles(uint8_t opcode) {
 }
 
 void CPU::executeInstruction(uint8_t opcode) {
+    //printRegisters();
+    // std::cout << "Opcode: " << std::hex << (int)opcode << std::endl;
     switch (opcode) {
         case 0x00: { // NOP
             break;
@@ -1301,7 +1326,7 @@ void CPU::executeInstruction(uint8_t opcode) {
             PC = 0x38;
             break;
         } default: {
-            std::cout << "Unknown opcode: " << std::hex << (int)opcode << std::endl;
+            std::cout << "Invalid opcode: " << std::hex << (int)opcode << std::endl;
             break;
         }
     }

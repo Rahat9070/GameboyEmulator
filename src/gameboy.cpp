@@ -8,21 +8,26 @@ Gameboy::Gameboy(Cartridge* cartridge) {
     cpu = new CPU(*mmu, *scheduler);
     renderer = new Renderer(cpu, ppu, mmu);
 
-    mmu->load_game_rom(cartridge->name);
     renderer->init("Gameboy Emulator", 640, 480);
 }
 
 void Gameboy::step() {
     int cycles = 0;
-    if (cpu->checkInterrupts()) {
+    if (cpu->checkInterrupts() == true) {
         cpu->handleInterrupts();
         cycles = 20;
     }
     else {
         uint8_t opcode = cpu->mmu->read_byte(cpu->PC++);
+        //std::cout << "PC: "<< std::hex << cpu->PC << std::endl;
+        //mmu->info();
         cycles = cpu->getCycles(opcode);
         cpu->executeInstruction(opcode);
     }
     scheduler->increment(cycles);
-    renderer->render();    
+    ppu->step(cycles);
+    if (ppu->can_render) {
+        renderer->render();    
+        ppu->can_render = false;
+    }
 }

@@ -15,7 +15,7 @@ int main(int argc, char* argv[]) {
         std::cerr << "Error: The file must have a .gb extension" << std::endl;
         return -1;
     }
-    Cartridge cartridge(directory);
+    Cartridge cartridge = Cartridge(directory);
     Gameboy gameboy(&cartridge);
 
     bool running = true;

@@ -2,28 +2,23 @@
 #include <iostream>
 
 Cartridge::Cartridge(std::string ROM_location) {
+    this->location = ROM_location;
     load_game_rom(ROM_location);
 }
 
-void Cartridge::load_game_rom(std::string ROM_location) {
-    std::ifstream ROM_FILE(ROM_location, std::ios::binary | std::ios::ate);
-    if (!ROM_FILE.is_open()) {
-        std::cout << "Unable to open ROM file: " << ROM_location << std::endl;
+void Cartridge::load_game_rom(std::string location) {
+    std::ifstream GAME_ROM(location, std::ios::binary);
+    GAME_ROM.seekg(0, std::ios::end);
+    long size = GAME_ROM.tellg();
+    if (size % (16 * 1024) != 0) {
+        std::cout << "Size must be a multiple of 16 KB" << std::endl;
         return;
     }
 
-    std::streamsize size = ROM_FILE.tellg();
-    ROM_FILE.seekg(0, std::ios::beg);
     memory = new uint8_t[size];
-    if (!memory) {
-        std::cerr << "Error: Could not allocate memory for ROM data." << std::endl;
-        return;
-    }
 
-    if (!ROM_FILE.read((char*)memory, size)) {
-        std::cerr << "Error: Could not read ROM data." << std::endl;
-        return;
-    }
+    GAME_ROM.seekg(std::ios::beg);
+    GAME_ROM.read((char *)memory, size);
 
     banks_rom = size / 0x4000;
     switch (memory[0x149]) {
@@ -51,30 +46,12 @@ void Cartridge::load_game_rom(std::string ROM_location) {
         }
     }
 
-    uint8_t ram_size = memory[0x149];
-    switch (ram_size) {
-        case 0x00: { // No RAM
-            ram = nullptr;
-            break;
-        } case 0x01: { // 2 KB
-            ram = new uint8_t[2 * 1024];
-            break;
-        } case 0x02: { // 8 KB
-            ram = new uint8_t[8 * 1024];
-            break;
-        } case 0x03: { // 32 KB
-            ram = new uint8_t[32 * 1024];
-            break;
-        } case 0x04: { // 128 KB
-            ram = new uint8_t[128 * 1024];
-            break;
-        } case 0x05: { // 64 KB
-            ram = new uint8_t[64 * 1024];
-            break;
-        }
-    }
+    ram = new uint8_t[banks_ram * 0x2000];
 
-    uint8_t mbc_type = memory[0x147];
+    title = std::string(memory + 0x134, memory + 0x143);
+    cgb = memory[0x143] == 0x80 || memory[0x143] == 0xC0;
+    mbc_type = (int)memory[0x147];
+
     switch (mbc_type) {
         case 0x00: {
             mbc = new MBC0(memory, ram);
@@ -138,7 +115,8 @@ void Cartridge::load_game_rom(std::string ROM_location) {
             return;
         }
     }
-    info();
+
+    this->info();
 }
 
 uint8_t Cartridge::MBC_read(uint16_t address) {
@@ -150,8 +128,9 @@ void Cartridge::MBC_write(uint16_t address, uint8_t value) {
 
 void Cartridge::info() {
     std::string rom_title = std::string(memory + 0x134, memory + 0x143);
+    std::cout << "CGB Game: " << (cgb ? "Yes" : "No") << std::endl;
     std::cout << "Rom Title: " << rom_title << std::endl;
-    std::cout << "MBC: " << mbc << std::endl;
+    std::cout << "MBC: " << +mbc_type << std::endl;
     std::cout << "ROM Banks: " << banks_rom << std::endl;
     std::cout << "RAM Banks: " << banks_ram << std::endl;
 }

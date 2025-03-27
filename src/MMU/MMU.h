@@ -8,6 +8,7 @@ class MMU {
         uint8_t memory[0xFFFF];
         uint8_t interrupt_enable = memory[0xFFFF];
         uint8_t interrupt_flags = memory[0xFF0F];
+        int timer_cycles = 0;
 
         uint16_t DIV = 0;
         uint16_t TIMA = 0;
@@ -35,7 +36,13 @@ class MMU {
             {0, 0, 0, 255},
             {0, 0, 0, 255},
         };
-        Colour palette_OBP[4] = {
+        Colour palette_OBP0[4] = {
+            {0, 0, 0, 255},
+            {0, 0, 0, 255},
+            {0, 0, 0, 255},
+            {0, 0, 0, 255},
+        };
+        Colour palette_OBP1[4] = {
             {0, 0, 0, 255},
             {0, 0, 0, 255},
             {0, 0, 0, 255},
@@ -43,12 +50,14 @@ class MMU {
         };
 
         MMU(Cartridge* cartridge);
-        void load_game_rom(std::string ROM_location);
         uint8_t read_byte(uint16_t address);
+        void info();
         void write_byte(uint16_t address, uint8_t value);
         void updateTile(uint16_t address, uint8_t value);
+        void updatePalette(Colour *palette, uint8_t value);
         void updateSprite(uint16_t address, uint8_t value);
         bool is_interrupt_enabled(uint8_t interruptFlag);
         bool is_interrupt_flag_enabled(uint8_t interruptFlag);
         void set_interrupt_flag(uint8_t interruptFlag);
+        void unset_interrupt_flag(uint8_t interruptFlag);
 };

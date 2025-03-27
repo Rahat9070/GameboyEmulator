@@ -11,10 +11,10 @@ class MBC {
         
         virtual uint8_t read_byte(uint16_t address) = 0;
         virtual void write_byte(uint16_t address, uint8_t value) = 0;
+        void info();
 
         MBC(uint8_t *rom, uint8_t *ram);
         MBC(uint8_t *rom, uint8_t *ram, int banks_ram, int banks_rom);
-
 };
 class MBC0 : public MBC { 
     public:

@@ -4,17 +4,6 @@
 
 MMU::MMU(Cartridge* cartridge) {
     this->cartridge = cartridge;
-    for (int i = 0; i < 0xFFFF; i++) {
-        memory[i] = 0;
-    }
-}
-
-void MMU::load_game_rom(std::string location) {
-    std::ifstream DMG_ROM(location, std::ios::binary);
-    DMG_ROM.seekg(0, std::ios::end);
-    long size = DMG_ROM.tellg();
-    DMG_ROM.seekg(0, std::ios::beg);
-    DMG_ROM.read((char *)memory, 0x100);
 }
 
 bool MMU::is_interrupt_enabled(uint8_t interruptFlag) {
@@ -28,6 +17,12 @@ void MMU::set_interrupt_flag(uint8_t interruptFlag) {
     write_byte(0xFF0F, interrupt_flags);
     return;
 }
+void MMU::unset_interrupt_flag(uint8_t interruptFlag) {
+    interrupt_flags &= ~interruptFlag;
+    write_byte(0xFF0F, interrupt_flags);
+    return;
+}
+
 uint8_t MMU::read_byte(uint16_t address) {
     if (address == 0xFF04) {
         return DIV;
@@ -41,20 +36,18 @@ uint8_t MMU::read_byte(uint16_t address) {
     if (address == 0xFF07) {
         return TAC;
     }
-    
-    if (address == 0xFF0F)
+    if (address == 0xFF0F) {
         return memory[0xFF0F];
-
-    if (address < 0x100)
+    }
+    if (address < 0x100) {
         return memory[address];
-
-    // Switchable ROM banks
-    if (address < 0x8000)
+    }
+    if (address < 0x8000) {
         return cartridge->MBC_read(address);
-
-    // Switchable RAM banks
-    if (address >= 0xA000 && address <= 0xBFFF)
+    }
+    if (address >= 0xA000 && address <= 0xBFFF) {
         return cartridge->MBC_read(address);
+    }
 
     return memory[address];
 }
@@ -62,6 +55,10 @@ uint8_t MMU::read_byte(uint16_t address) {
 void MMU::write_byte(uint16_t address, uint8_t value) {
     if (address == 0xFF40) {
         memory[address] = value;
+        if (!(value & (1 << 7))) {
+            memory[0xFF44] = 0x00;
+            memory[0xFF41] &= 0x7C;
+        }
         return;
     }
     if (address >= 0xFEA0 && address <= 0xFEFF) {
@@ -74,16 +71,26 @@ void MMU::write_byte(uint16_t address, uint8_t value) {
         }
         return;
     }
-
-    else if (address == 0xFF04)
+    else if (address == 0xFF04) {
         DIV = 0;
-    else if (address == 0xFF05)
+    }
+    else if (address == 0xFF05) {
         TIMA = value;
-    else if (address == 0xFF06)
+    }
+    else if (address == 0xFF06) {
         TMA = value;
-    else if (address == 0xFF07)
+    }
+    else if (address == 0xFF07) {
         TAC = value;
+    }
     
+    else if (address == 0xff47)
+        updatePalette(palette_BGP, value);
+    else if (address == 0xff48)
+        updatePalette(palette_OBP0, value);
+    else if (address == 0xff49)
+        updatePalette(palette_OBP1, value);
+
     if (address < 0x8000) {
         cartridge->MBC_write(address, value);
     } else if (address >= 0xA000 && address <= 0xBFFF) {
@@ -94,6 +101,10 @@ void MMU::write_byte(uint16_t address, uint8_t value) {
     
     if (address >= 0x8000 && address <= 0x97FF) {
         updateTile(address, value);
+    }
+
+    if (address >= 0xFE00 && address <= 0xFE9F) {
+        updateSprite(address, value);
     }
     return;
 }
@@ -127,8 +138,22 @@ void MMU::updateSprite(uint16_t addres, uint8_t value) {
             break;
         case 3:
             sprite->options.value = value;
-            sprite->colourPalette = (sprite->options.paletteNumber == 0) ? palette_BGP : palette_OBP;
+            sprite->colourPalette = (sprite->options.paletteNumber == 0) ? palette_OBP1 : palette_OBP0;
             sprite->ready = true;
             break;
     }
+}
+
+void MMU::updatePalette(Colour *palette, uint8_t value) {
+    palette[0] = palette_colours[value & 0x3];
+    palette[1] = palette_colours[(value >> 2) & 0x3];
+    palette[2] = palette_colours[(value >> 4) & 0x3];
+    palette[3] = palette_colours[(value >> 6) & 0x3];
+}
+
+void MMU::info() {
+    std::cout << "DIV: " << DIV << std::endl;
+    std::cout << "TIMA: " << TIMA << std::endl;
+    std::cout << "TMA: " << TMA << std::endl;
+    std::cout << "TAC: " << TAC << std::endl;
 }

@@ -7,8 +7,9 @@ Scheduler::Scheduler(MMU *mmu) {
 }
 
 void Scheduler::increment(uint8_t cycles) {
-    timer_cycles += cycles;
-    timer_cycles %= 4194304; // Game Boy Ticks
+    mmu->timer_cycles += cycles;
+    mmu->timer_cycles %= 4194304; // Game Boy Ticks
+    DIV += cycles;
     while (DIV >= 256) {
         DIV -= 256;
         mmu->DIV++;

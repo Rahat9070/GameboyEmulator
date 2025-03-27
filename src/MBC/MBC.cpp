@@ -12,6 +12,12 @@ MBC::MBC(uint8_t *rom, uint8_t *ram, int banks_ram, int banks_rom) {
     this->banks_ram = banks_ram;
     this->banks_rom = banks_rom;
 }
+void MBC::info() {
+    std::cout << "MBC: " << std::endl;
+    std::cout << "RAM Banks: " << banks_ram << std::endl;
+    std::cout << "ROM Banks: " << banks_rom << std::endl;
+    std::cout << "RAM: " << ram << std::endl;
+}
 
 uint8_t MBC0::read_byte(uint16_t address) {
     if (address < 0x8000) {
