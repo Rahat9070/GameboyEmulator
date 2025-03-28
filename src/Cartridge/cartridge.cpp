@@ -116,6 +116,9 @@ void Cartridge::load_game_rom(std::string location) {
         }
     }
 
+    for (int i = 0; i < 10; i++) {  // Print first 10 bytes of ROM
+        std::cout << "ROM[" << std::hex << i << "] = " << (int)memory[i] << std::endl;
+    }
     this->info();
 }
 

@@ -45,11 +45,13 @@ uint8_t MBC1::read_byte(uint16_t address) {
         int bank = ((bank_ram << 5) | bank_rom) % banks_rom;
         return rom[bank * 0x4000 + address - 0x4000];
     } else if (address >= 0xA000 && address < 0xC000) {
-        int bank = is_ram_bank * bank_ram % banks_ram;
-        return ram[bank * 0x2000 + address - 0xA000];
+        if (is_ram_extended == true) {
+            int bank = is_ram_bank * bank_ram % banks_ram;
+            return ram[bank * 0x2000 + address - 0xA000];
+        }
     } else {
         std::cout << "Cannot read byte for MBC1" << std::endl;
-        return 0;
+        return 0xFF;
     }
 }
 void MBC1::write_byte(uint16_t address, uint8_t value) {
@@ -93,7 +95,7 @@ uint8_t MBC2::read_byte(uint16_t address) {
             return ram[bank_ram * 0x2000 + address - 0xA000];
         } else {
             std::cout << "RAM is not extended";
-            return 0;
+            return 0xFF;
         }
     } else {
         std::cout << "Cannot read byte for MBC2" << std::endl;

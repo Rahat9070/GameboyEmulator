@@ -20,6 +20,8 @@ class MMU {
         static constexpr uint8_t TIMER = (1 << 2);
         static constexpr uint8_t SERIAL = (1 << 3);
 
+        bool rom_disabled = false;
+
         Sprite sprites[40] = {Sprite()};
         Tile tiles[384];
 

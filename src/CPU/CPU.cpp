@@ -1,10 +1,10 @@
 #include "CPU.h"
 #include <iostream>
 
-CPU::CPU(MMU& mmu, Scheduler& scheduler) {
-    this->mmu = &mmu;
-    this->scheduler = &scheduler;
-    memory = mmu.memory;
+CPU::CPU(MMU* mmu, Scheduler *scheduler) {
+    this->mmu = mmu;
+    this->scheduler = scheduler;
+    memory = mmu->memory;
     PC = 0;
     reset();
 }
@@ -30,10 +30,11 @@ void CPU::reset() {
     setCarryFlag(true);
     setSubtractFlag(false);
 
+    mmu->rom_disabled = true;
     mmu->memory[0xFF0F] = 0xE1;
-    mmu->write_byte(0xFF40, 0x91);
-    mmu->write_byte(0xFF41, 0x80);
-    mmu->DIV = 0xD3;
+    mmu->memory[0xFF40] = 0x91;
+    mmu->memory[0xFF41] = 0x80;
+    mmu->DIV = 0xAB;
     mmu->TIMA = 0x00;
     mmu->TMA = 0x00;
     mmu->TAC = 0xF8;
@@ -59,9 +60,6 @@ void CPU::setCarryFlag(bool value) {
 }
 
 bool CPU::checkInterrupts() {
-    if (!(IME & 0x01)) {
-        return false;
-    }
     if (mmu->read_byte(0xFFFF) & mmu->read_byte(0xFF0F) & 0x0F) {
         halted = false;
     }
@@ -172,7 +170,7 @@ int CPU::getCycles(uint8_t opcode) {
 
 void CPU::executeInstruction(uint8_t opcode) {
     //printRegisters();
-    // std::cout << "Opcode: " << std::hex << (int)opcode << std::endl;
+    std::cout << "Opcode: " << std::hex << (int)opcode << "\n" << "PC: " << std::hex << (int)PC << std::endl;
     switch (opcode) {
         case 0x00: { // NOP
             break;
@@ -1072,6 +1070,7 @@ void CPU::executeInstruction(uint8_t opcode) {
             }
             break;
         } case 0xCB: { // CB PREFIX
+            std::cout << "EXecuting CB opcde" << std::endl;
             uint8_t cb_opcode = memory[PC++];
             executeCBInstruction(cb_opcode);
             break;
@@ -1330,6 +1329,7 @@ void CPU::executeInstruction(uint8_t opcode) {
             break;
         }
     }
+    //std::cout << "PC: " << std::hex << PC << std::endl;
 }
 
 void CPU::executeCBInstruction(uint8_t cb_opcode) {

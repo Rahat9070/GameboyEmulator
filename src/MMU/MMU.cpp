@@ -7,10 +7,10 @@ MMU::MMU(Cartridge* cartridge) {
 }
 
 bool MMU::is_interrupt_enabled(uint8_t interruptFlag) {
-    return (interrupt_enable & interruptFlag);
+    return (this->read_byte(0xFFFF) & interruptFlag);
 }
 bool MMU::is_interrupt_flag_enabled(uint8_t interruptFlag) {
-    return (interrupt_flags & interruptFlag);
+    return (this->read_byte(0xFF0F) & interruptFlag);
 }
 void MMU::set_interrupt_flag(uint8_t interruptFlag) {
     interrupt_flags |= interruptFlag;
@@ -24,29 +24,30 @@ void MMU::unset_interrupt_flag(uint8_t interruptFlag) {
 }
 
 uint8_t MMU::read_byte(uint16_t address) {
-    if (address == 0xFF04) {
-        return DIV;
-    }
-    if (address == 0xFF05) {
-        return TIMA;
-    }
-    if (address == 0xFF06) {
-        return TMA;
-    }
-    if (address == 0xFF07) {
-        return TAC;
-    }
-    if (address == 0xFF0F) {
-        return memory[0xFF0F];
-    }
-    if (address < 0x100) {
+    if (address < 0x100 && !rom_disabled) {
         return memory[address];
     }
     if (address < 0x8000) {
+        // std::cout << "Address: " << std::hex << address << std::endl;
         return cartridge->MBC_read(address);
     }
     if (address >= 0xA000 && address <= 0xBFFF) {
         return cartridge->MBC_read(address);
+    }
+    if (address == 0xFF04) {
+        return DIV;
+    }
+    else if (address == 0xFF05) {
+        return TIMA;
+    }
+    else if (address == 0xFF06) {
+        return TMA;
+    }
+    else if (address == 0xFF07) {
+        return TAC;
+    }
+    else if (address == 0xFF0F) {
+        return memory[0xFF0F];
     }
 
     return memory[address];
@@ -90,6 +91,9 @@ void MMU::write_byte(uint16_t address, uint8_t value) {
         updatePalette(palette_OBP0, value);
     else if (address == 0xff49)
         updatePalette(palette_OBP1, value);
+    if (address == 0xFF50) {
+        rom_disabled = true;
+    }
 
     if (address < 0x8000) {
         cartridge->MBC_write(address, value);
@@ -152,8 +156,5 @@ void MMU::updatePalette(Colour *palette, uint8_t value) {
 }
 
 void MMU::info() {
-    std::cout << "DIV: " << DIV << std::endl;
-    std::cout << "TIMA: " << TIMA << std::endl;
-    std::cout << "TMA: " << TMA << std::endl;
-    std::cout << "TAC: " << TAC << std::endl;
+    std::cout << "DIV: " << (int)DIV << " TIMA: " << (int)TIMA << " TMA: " << (int)TMA << " TAC: " << (int)TAC << std::endl;
 }
