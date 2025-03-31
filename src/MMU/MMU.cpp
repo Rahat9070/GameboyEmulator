@@ -24,15 +24,11 @@ void MMU::unset_interrupt_flag(uint8_t interruptFlag) {
 }
 
 uint8_t MMU::read_byte(uint16_t address) {
-    if (address < 0x100 && !rom_disabled) {
-        return memory[address];
-    }
-    if (address < 0x8000) {
-        // std::cout << "Address: " << std::hex << address << std::endl;
-        return cartridge->MBC_read(address);
-    }
-    if (address >= 0xA000 && address <= 0xBFFF) {
-        return cartridge->MBC_read(address);
+    if (address == 0xFF00) {
+        switch (memory[0xff00] & 0x30) {  // Mask `00110000` to check which SELECT
+            default:
+                return 0xFF;
+        }
     }
     if (address == 0xFF04) {
         return DIV;
@@ -48,6 +44,15 @@ uint8_t MMU::read_byte(uint16_t address) {
     }
     else if (address == 0xFF0F) {
         return memory[0xFF0F];
+    }
+    if (address < 0x100 && !rom_disabled) {
+        return memory[address];
+    }
+    if (address < 0x8000) {
+        return cartridge->MBC_read(address);
+    }
+    if (address >= 0xA000 && address <= 0xBFFF) {
+        return cartridge->MBC_read(address);
     }
 
     return memory[address];
@@ -70,6 +75,10 @@ void MMU::write_byte(uint16_t address, uint8_t value) {
         for (int i = 0; i < 160; i++) {
             write_byte(0xFE00 + i, read_byte((value << 8) + i));
         }
+        return;
+    }
+    if (address == 0xFF50) {
+        rom_disabled = true;
         return;
     }
     else if (address == 0xFF04) {
@@ -157,4 +166,5 @@ void MMU::updatePalette(Colour *palette, uint8_t value) {
 
 void MMU::info() {
     std::cout << "DIV: " << (int)DIV << " TIMA: " << (int)TIMA << " TMA: " << (int)TMA << " TAC: " << (int)TAC << std::endl;
+    std::cout << "Timer Cycles: " << timer_cycles << std::endl;
 }

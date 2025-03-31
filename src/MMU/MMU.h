@@ -21,6 +21,8 @@ class MMU {
         static constexpr uint8_t SERIAL = (1 << 3);
 
         bool rom_disabled = false;
+        bool cgb_mode = false;
+        bool trigger_halted = false;
 
         Sprite sprites[40] = {Sprite()};
         Tile tiles[384];
@@ -53,7 +55,6 @@ class MMU {
 
         MMU(Cartridge* cartridge);
         uint8_t read_byte(uint16_t address);
-        void info();
         void write_byte(uint16_t address, uint8_t value);
         void updateTile(uint16_t address, uint8_t value);
         void updatePalette(Colour *palette, uint8_t value);
@@ -62,4 +63,5 @@ class MMU {
         bool is_interrupt_flag_enabled(uint8_t interruptFlag);
         void set_interrupt_flag(uint8_t interruptFlag);
         void unset_interrupt_flag(uint8_t interruptFlag);
+        void info();
 };

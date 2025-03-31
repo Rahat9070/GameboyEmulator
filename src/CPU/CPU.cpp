@@ -88,27 +88,6 @@ void CPU::updateInterrupt(uint8_t interruptFlag, uint8_t pc) {
     halted = false;
 }
 
-void CPU::handleInterrupts() {
-    if (IME == true) return;
-    uint8_t interrupt_flags = mmu->interrupt_flags;
-    uint8_t interrupt_enable = mmu->interrupt_enable;
-    if (interrupt_flags & interrupt_enable) {
-        IME = false;
-        halted = false;
-        if (interrupt_flags & 0x01) {
-            mmu->interrupt_flags &= ~0x01;
-        } else if (interrupt_flags & 0x02) {
-            mmu->interrupt_flags &= ~0x02;
-        } else if (interrupt_flags & 0x04) {
-            mmu->interrupt_flags &= ~0x04;
-        } else if (interrupt_flags & 0x08) {
-            mmu->interrupt_flags &= ~0x08;
-        } else if (interrupt_flags & 0x10) {
-            mmu->interrupt_flags &= ~0x10;
-        }
-    }
-}
-
 int CPU::getCycles(uint8_t opcode) {
     switch (opcode) {
         case 0x20: { // JR NZ, offset
@@ -170,7 +149,7 @@ int CPU::getCycles(uint8_t opcode) {
 
 void CPU::executeInstruction(uint8_t opcode) {
     //printRegisters();
-    std::cout << "Opcode: " << std::hex << (int)opcode << "\n" << "PC: " << std::hex << (int)PC << std::endl;
+    // std::cout << "Opcode: " << std::hex << (int)opcode << "\n" << "PC: " << std::hex << (int)PC << std::endl;
     switch (opcode) {
         case 0x00: { // NOP
             break;
@@ -1058,8 +1037,9 @@ void CPU::executeInstruction(uint8_t opcode) {
             }
             break;
         } case 0xC9: { // RET
-            uint8_t low = memory[SP++];
-            uint8_t high = memory[SP++];
+            uint8_t low = memory[SP];
+            uint8_t high = memory[SP + 1];
+            SP += 2;
             PC = (high << 8) | low;
             break;
         } case 0xCA: { // JP Z, a16

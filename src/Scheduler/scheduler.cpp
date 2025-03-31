@@ -10,9 +10,9 @@ void Scheduler::increment(uint8_t cycles) {
     mmu->timer_cycles += cycles;
     mmu->timer_cycles %= 4194304; // Game Boy Ticks
     DIV += cycles;
-    while (DIV >= 256) {
+    while ((int)DIV >= 256) {
         DIV -= 256;
-        mmu->DIV++;
+        mmu->DIV += 1;
     }
 
     if (mmu->TAC & 0x04) {
@@ -43,4 +43,9 @@ void Scheduler::increment(uint8_t cycles) {
             }
         }
     }
+}
+
+void Scheduler::info() {
+    std::cout << "Scheduler Info:" << std::endl;
+    std::cout << std::dec <<  "DIV: " << (int)DIV << " TIMA"  << (int)TIMA << " TMA: " << (int)TMA << " TAC: " << (int)TAC << std::endl;
 }
