@@ -59,6 +59,7 @@ uint8_t MMU::read_byte(uint16_t address) {
 }
 
 void MMU::write_byte(uint16_t address, uint8_t value) {
+    std::cout << "Writing to address: " << std::hex << address << " value: " << std::hex << (int)value << std::endl;
     if (address == 0xFF40) {
         memory[address] = value;
         if (!(value & (1 << 7))) {
@@ -119,7 +120,6 @@ void MMU::write_byte(uint16_t address, uint8_t value) {
     if (address >= 0xFE00 && address <= 0xFE9F) {
         updateSprite(address, value);
     }
-    return;
 }
 
 void MMU::updateTile(uint16_t addres, uint8_t value) {
@@ -166,5 +166,5 @@ void MMU::updatePalette(Colour *palette, uint8_t value) {
 
 void MMU::info() {
     std::cout << "DIV: " << (int)DIV << " TIMA: " << (int)TIMA << " TMA: " << (int)TMA << " TAC: " << (int)TAC << std::endl;
-    std::cout << "Timer Cycles: " << timer_cycles << std::endl;
+    std::cout << "Rom Disabled: " << (rom_disabled ? "true" : "false") << std::endl;
 }
