@@ -3,10 +3,10 @@
 
 Cartridge::Cartridge(std::string ROM_location) {
     this->location = ROM_location;
-    load_game_rom(ROM_location);
+    load_rom(ROM_location);
 }
 
-void Cartridge::load_game_rom(std::string location) {
+void Cartridge::load_rom(std::string location) {
     std::ifstream GAME_ROM(location, std::ios::binary);
     GAME_ROM.seekg(0, std::ios::end);
     long size = GAME_ROM.tellg();
@@ -15,8 +15,8 @@ void Cartridge::load_game_rom(std::string location) {
         return;
     }
 
-    memory = new uint8_t[size];
 
+    memory = new uint8_t[size];
     GAME_ROM.seekg(std::ios::beg);
     GAME_ROM.read((char *)memory, size);
 
@@ -50,9 +50,8 @@ void Cartridge::load_game_rom(std::string location) {
 
     title = std::string(memory + 0x134, memory + 0x143);
     cgb = memory[0x143] == 0x80 || memory[0x143] == 0xC0;
-    mbc_type = (int)memory[0x147];
 
-    switch (mbc_type) {
+    switch ((int)memory[0x147]) {
         case 0x00: {
             mbc = new MBC0(memory, ram);
             break;
@@ -111,13 +110,9 @@ void Cartridge::load_game_rom(std::string location) {
             mbc = new MBC5(memory, ram, banks_rom, banks_ram);
             break;
         } default: {
-            std::cerr << "Error: Unsupported MBC type: " << std::hex << (int)mbc_type << std::endl;
+            std::cerr << "Error: Unsupported MBC type: " << std::hex << (int)memory[0x147] << std::endl;
             return;
         }
-    }
-
-    for (int i = 0; i < 10; i++) {  // Print first 10 bytes of ROM
-        std::cout << "ROM[" << std::hex << i << "] = " << (int)memory[i] << std::endl;
     }
     this->info();
 }
@@ -131,9 +126,7 @@ void Cartridge::MBC_write(uint16_t address, uint8_t value) {
 
 void Cartridge::info() {
     std::string rom_title = std::string(memory + 0x134, memory + 0x143);
-    std::cout << "CGB Game: " << (cgb ? "Yes" : "No") << std::endl;
     std::cout << "Rom Title: " << rom_title << std::endl;
-    std::cout << "MBC: " << +mbc_type << std::endl;
     std::cout << "ROM Banks: " << banks_rom << std::endl;
     std::cout << "RAM Banks: " << banks_ram << std::endl;
 }

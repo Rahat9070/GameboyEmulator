@@ -9,6 +9,7 @@ Gameboy::Gameboy(Cartridge* cartridge) {
     renderer = new Renderer(cpu, ppu, mmu);
 
     mmu->rom_disabled = true;
+    std::cout << "Memory[452]" << std::hex << (int)mmu->read_byte(0x1C4) << std::endl;
     renderer->init("Gameboy Emulator", 640, 480);
 }
 
@@ -16,7 +17,6 @@ void Gameboy::step() {
     int cycles = 0;
     bool check = cpu->checkInterrupts();
     if (check == true) {
-        std::cout << "Interrupts triggered" << std::endl;
         cycles = 20;
     }
     else {
@@ -26,7 +26,7 @@ void Gameboy::step() {
         }
 
         uint8_t opcode = cpu->mmu->read_byte(cpu->PC);
-        // std::cout << "PC: "<< std::hex << cpu->PC << "\n" << "Opcode: " << std::hex << opcode << std::endl;
+        std::cout << "PC: "<< std::hex << cpu->PC << "\n" << "Opcode: " << std::hex << opcode << std::endl;
         if (!mmu->trigger_halted) {
             cpu->PC++;
         }
@@ -41,6 +41,6 @@ void Gameboy::step() {
     std::cout << "PC: " << std::hex << cpu->PC << std::endl;  
     cpu->printRegisters();
     mmu->info();
-    // scheduler->info();
     getchar();
+    // scheduler->info();
 }

@@ -17,13 +17,12 @@ class Cartridge {
         uint8_t *ram;
 
         bool cgb = false;
-        uint8_t mbc_type = 0x0;
         int banks_rom;
         int banks_ram;
 
         Cartridge(std::string ROM_location);
 
-        void load_game_rom(std::string ROM_location);
+        void load_rom(std::string ROM_location);
 
         uint8_t MBC_read(uint16_t address);
         void MBC_write(uint16_t address, uint8_t value);

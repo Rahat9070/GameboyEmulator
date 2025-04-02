@@ -13,17 +13,20 @@ bool MMU::is_interrupt_flag_enabled(uint8_t interruptFlag) {
     return (this->read_byte(0xFF0F) & interruptFlag);
 }
 void MMU::set_interrupt_flag(uint8_t interruptFlag) {
-    interrupt_flags |= interruptFlag;
-    write_byte(0xFF0F, interrupt_flags);
+    uint8_t interrupt_flag = this->read_byte(0xFF0F);
+    interrupt_flag |= interruptFlag;
+    write_byte(0xFF0F, interrupt_flag);
     return;
 }
 void MMU::unset_interrupt_flag(uint8_t interruptFlag) {
-    interrupt_flags &= ~interruptFlag;
-    write_byte(0xFF0F, interrupt_flags);
+    uint8_t interrupt_flag = this->read_byte(0xFF0F);
+    interrupt_flag &= ~interruptFlag;
+    write_byte(0xFF0F, interrupt_flag);
     return;
 }
 
 uint8_t MMU::read_byte(uint16_t address) {
+    std::cout << "Reading from address: " << std::hex << address << std::endl;
     if (address == 0xFF00) {
         switch (memory[0xff00] & 0x30) {  // Mask `00110000` to check which SELECT
             default:
@@ -59,7 +62,7 @@ uint8_t MMU::read_byte(uint16_t address) {
 }
 
 void MMU::write_byte(uint16_t address, uint8_t value) {
-    std::cout << "Writing to address: " << std::hex << address << " value: " << std::hex << (int)value << std::endl;
+    std::cout << "Writing to address: " << std::hex << address << " value: " << (int)value << std::endl;
     if (address == 0xFF40) {
         memory[address] = value;
         if (!(value & (1 << 7))) {
