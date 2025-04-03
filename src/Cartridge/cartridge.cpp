@@ -47,10 +47,6 @@ void Cartridge::load_rom(std::string location) {
     }
 
     ram = new uint8_t[banks_ram * 0x2000];
-
-    title = std::string(memory + 0x134, memory + 0x143);
-    cgb = memory[0x143] == 0x80 || memory[0x143] == 0xC0;
-
     switch ((int)memory[0x147]) {
         case 0x00: {
             mbc = new MBC0(memory, ram);
@@ -114,7 +110,6 @@ void Cartridge::load_rom(std::string location) {
             return;
         }
     }
-    this->info();
 }
 
 uint8_t Cartridge::MBC_read(uint16_t address) {
@@ -129,4 +124,5 @@ void Cartridge::info() {
     std::cout << "Rom Title: " << rom_title << std::endl;
     std::cout << "ROM Banks: " << banks_rom << std::endl;
     std::cout << "RAM Banks: " << banks_ram << std::endl;
+    std::cout << "MBC Type: " << +(int)memory[0x147] << std::endl;
 }

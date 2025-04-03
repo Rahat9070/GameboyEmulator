@@ -140,7 +140,7 @@ void PPU::render_background(bool* rows) {
                 break;
             }
             int colour = mmu->tiles[tile].pixels[y][x];
-            framebuffer[offset + pixel] = mmu->colour[colour];
+            framebuffer[offset + pixel] = mmu->palette_BGP[colour];
             if (colour != 0) {
                 rows[pixel] = true;
             }
@@ -187,7 +187,7 @@ void PPU::render_sprites(bool* rows) {
             continue;
 
         int pixel_y = *scanline - sprite.y;
-        pixel_y = sprite.options.yFlip ? (7 + 8 * sprite_size) - pixel_y : pixel_y;
+        pixel_y = sprite.yFlip ? (7 + 8 * sprite_size) - pixel_y : pixel_y;
 
         for (int x = 0; x < 8; x++) {
             int tile_num = sprite.tile & (sprite_size ? 0xFE : 0xFF);
@@ -199,7 +199,7 @@ void PPU::render_sprites(bool* rows) {
 
             int pixelOffset = *this->scanline * 160 + x_temp;
 
-            uint8_t pixel_x = sprite.options.xFlip ? 7 - x : x;
+            uint8_t pixel_x = sprite.xFlip ? 7 - x : x;
 
             if (sprite_size && (pixel_y >= 8))
                 colour = mmu->tiles[tile_num + 1].pixels[pixel_y - 8][pixel_x];
@@ -209,7 +209,7 @@ void PPU::render_sprites(bool* rows) {
             if (!colour)
                 continue;
 
-            if (!rows[x_temp] || !sprite.options.renderPriority)
+            if (!rows[x_temp] || !sprite.renderPriority)
                 framebuffer[pixelOffset] = sprite.colourPalette[colour];
         }
     }

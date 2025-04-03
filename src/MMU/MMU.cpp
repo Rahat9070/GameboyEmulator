@@ -6,6 +6,10 @@ MMU::MMU(Cartridge* cartridge) {
     this->cartridge = cartridge;
 }
 
+void MMU::set_debug() {
+    debug_mode = true;
+}
+
 bool MMU::is_interrupt_enabled(uint8_t interruptFlag) {
     return (this->read_byte(0xFFFF) & interruptFlag);
 }
@@ -26,27 +30,28 @@ void MMU::unset_interrupt_flag(uint8_t interruptFlag) {
 }
 
 uint8_t MMU::read_byte(uint16_t address) {
-    std::cout << "Reading from address: " << std::hex << address << std::endl;
-    if (address == 0xFF00) {
+    if (debug_mode) {
+        std::cout << "Reading from address: " << std::hex << address << std::endl;
+    }
+    if (address == 0xff00) {
         switch (memory[0xff00] & 0x30) {  // Mask `00110000` to check which SELECT
             default:
                 return 0xFF;
         }
     }
-    if (address == 0xFF04) {
-        return DIV;
-    }
-    else if (address == 0xFF05) {
-        return TIMA;
-    }
-    else if (address == 0xFF06) {
-        return TMA;
-    }
-    else if (address == 0xFF07) {
-        return TAC;
-    }
-    else if (address == 0xFF0F) {
-        return memory[0xFF0F];
+
+    switch (address) {
+        case 0xFF04: {
+            return DIV;
+        } case 0xFF05: { 
+            return TIMA;
+        } case 0xFF06: {
+            return TMA;
+        } case 0xFF07: {
+            return TAC;
+        } case 0xFF0F: {
+            return memory[0xFF0F];
+        }
     }
     if (address < 0x100 && !rom_disabled) {
         return memory[address];
@@ -62,7 +67,10 @@ uint8_t MMU::read_byte(uint16_t address) {
 }
 
 void MMU::write_byte(uint16_t address, uint8_t value) {
-    std::cout << "Writing to address: " << std::hex << address << " value: " << (int)value << std::endl;
+    if (debug_mode) {
+        std::cout << "Writing to address: " << std::hex << address << " value: " << (int)value << std::endl;
+    }
+
     if (address == 0xFF40) {
         memory[address] = value;
         if (!(value & (1 << 7))) {
@@ -72,6 +80,7 @@ void MMU::write_byte(uint16_t address, uint8_t value) {
         return;
     }
     if (address >= 0xFEA0 && address <= 0xFEFF) {
+        std::cout << "Writing in unused area" << std::endl;
         return;
     }
     if (address == 0xFF46) {
@@ -104,9 +113,6 @@ void MMU::write_byte(uint16_t address, uint8_t value) {
         updatePalette(palette_OBP0, value);
     else if (address == 0xff49)
         updatePalette(palette_OBP1, value);
-    if (address == 0xFF50) {
-        rom_disabled = true;
-    }
 
     if (address < 0x8000) {
         cartridge->MBC_write(address, value);
@@ -128,12 +134,11 @@ void MMU::write_byte(uint16_t address, uint8_t value) {
 void MMU::updateTile(uint16_t addres, uint8_t value) {
     uint16_t address = addres & 0xFFFE;
 
-    uint16_t tile = (addres >> 4) & 511;
-    uint16_t y = (addres >> 1) & 7;
+    uint16_t tile = (address >> 4) & 511;
+    uint16_t y = (address >> 1) & 7;
 
     uint8_t index;
-    uint8_t x = 0;
-    for (x; x < 8; x++) {
+    for (uint8_t x = 0; x < 8; x++) {
         index = 1 << (7 - x);
         tiles[tile].pixels[y][x] = ((memory[address] & index) ? 1 : 0) + ((memory[address + 1] & index) ? 2 : 0);
     }
@@ -153,21 +158,23 @@ void MMU::updateSprite(uint16_t addres, uint8_t value) {
             sprite->tile = value;
             break;
         case 3:
-            sprite->options.value = value;
-            sprite->colourPalette = (sprite->options.paletteNumber == 0) ? palette_OBP1 : palette_OBP0;
+            sprite->value = value;
+            sprite->colourPalette = (sprite->paletteNumber == 0) ? palette_OBP1 : palette_OBP0;
             sprite->ready = true;
             break;
     }
 }
 
-void MMU::updatePalette(Colour *palette, uint8_t value) {
-    palette[0] = palette_colours[value & 0x3];
-    palette[1] = palette_colours[(value >> 2) & 0x3];
-    palette[2] = palette_colours[(value >> 4) & 0x3];
-    palette[3] = palette_colours[(value >> 6) & 0x3];
+void MMU::updatePalette(GBColour *palette, uint8_t value) {
+    GBColour palette_colours[4] = {
+        GB_WHITE, GB_LIGHT_GRAY, GB_DARK_GRAY, GB_BLACK
+    };
+    palette[0] = palette_colours[value & 0x03];
+    palette[1] = palette_colours[(value >> 2) & 0x03];
+    palette[2] = palette_colours[(value >> 4) & 0x03];
+    palette[3] = palette_colours[(value >> 6) & 0x03];
 }
 
 void MMU::info() {
     std::cout << "DIV: " << (int)DIV << " TIMA: " << (int)TIMA << " TMA: " << (int)TMA << " TAC: " << (int)TAC << std::endl;
-    std::cout << "Rom Disabled: " << (rom_disabled ? "true" : "false") << std::endl;
 }

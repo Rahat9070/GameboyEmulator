@@ -9,14 +9,12 @@
 
 class Cartridge {
     public:
-        std::string title;
         std::string location;
 
         MBC *mbc;
         uint8_t *memory;
         uint8_t *ram;
 
-        bool cgb = false;
         int banks_rom;
         int banks_ram;
 

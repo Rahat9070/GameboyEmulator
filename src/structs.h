@@ -2,13 +2,11 @@
 
 #include <cstdint>
 
-struct Colour {
-    union {
-        struct {
-            uint8_t r, g, b, a;
-        };
-        uint8_t colours[4];
-    };
+enum GBColour : uint8_t {
+    GB_BLACK = 0,
+    GB_DARK_GRAY = 1,
+    GB_LIGHT_GRAY = 2,
+    GB_WHITE = 3
 };
 
 struct Sprite {
@@ -16,22 +14,12 @@ struct Sprite {
     int y;
     int x;
     uint8_t tile;
-    Colour *colourPalette;
-    struct {
-        union {
-            struct {
-                uint8_t gbcPaletteNumber1 : 1;
-                uint8_t gbcPaletteNumber2 : 1;
-                uint8_t gbcPaletteNumber3 : 1;
-                uint8_t gbcVRAMBank : 1;
-                uint8_t paletteNumber : 1;
-                uint8_t xFlip : 1;
-                uint8_t yFlip : 1;
-                uint8_t renderPriority : 1;
-            };
-            uint8_t value;
-        };
-    } options;
+    GBColour* colourPalette;
+    uint8_t paletteNumber : 1;
+    uint8_t xFlip : 1;
+    uint8_t yFlip : 1;
+    uint8_t renderPriority : 1;
+    uint8_t value;
 };
 
 struct Tile {

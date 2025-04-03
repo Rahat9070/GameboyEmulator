@@ -10,7 +10,7 @@ class CPU
 {
     public:
         CPU(MMU *mmu, Scheduler *scheduler);
-        void printRegisters();
+        void info();
 
         // Instruction cycles
         const uint8_t instructionCycles[256] = {

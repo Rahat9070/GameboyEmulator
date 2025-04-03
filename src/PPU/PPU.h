@@ -31,7 +31,7 @@ class PPU {
         uint8_t oam_interrupt = 0;
         uint8_t coincidence_interrupt = 0;
     
-        Colour framebuffer[160 * 144];
+        GBColour framebuffer[160 * 144];
         uint8_t background[32 * 32];
     
         int modeclock = 0;
