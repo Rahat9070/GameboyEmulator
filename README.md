@@ -1,5 +1,5 @@
 # Game Boy Emulator
-This is a simpleGame Boy Emulator written in C++. This emulator supports the original Game Boy and was created to learn more about the creation of emulators. The emulator does not contain any extra unique features compared to other Game Boy emulators.
+This is a simple Game Boy Emulator written in C++. This emulator supports the original Game Boy and was created to learn more about the creation of emulators. The emulator does not contain any extra unique features compared to other Game Boy emulators.
 
 ## Setup
 To run this project, the libraries required to install are provided within `requirements.txt`. To install them on unix/WSL:

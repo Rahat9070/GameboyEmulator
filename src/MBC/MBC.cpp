@@ -41,9 +41,10 @@ uint8_t MBC1::read_byte(uint16_t address) {
     if (address < 0x4000) {
         int bank = is_ram_bank * (bank_ram << 5) % banks_ram;
         return rom[bank * 0x4000 + address];
-    } else if (address >= 0x4000 && address <0x8000) {
+    } else if (address >= 0x4000 && address < 0x8000) {
         int bank = ((bank_ram << 5) | bank_rom) % banks_rom;
-        return rom[bank * 0x4000 + address - 0x4000];
+        if (bank == 0){ bank = 1;  }// Ensure bank is valid
+        return rom[bank * 0x4000 + (address - 0x4000)];
     } else if (address >= 0xA000 && address < 0xC000) {
         if (is_ram_extended == true) {
             int bank = is_ram_bank * bank_ram % banks_ram;

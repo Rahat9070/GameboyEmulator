@@ -93,8 +93,8 @@ int main(int argc, char* argv[]) {
         }
 
         scheduler.increment(cycles);
-        //ppu.step(cycles);
-        //renderer.render();
+        ppu.step(cycles);
+        renderer.render();
 
         if (debug) {
             cpu.info();

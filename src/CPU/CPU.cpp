@@ -381,7 +381,9 @@ void CPU::executeInstruction(uint8_t opcode) {
             break;
         } case 0x2A: { // LD A, [HL+]
             uint16_t HL = (H << 8) | L;
+
             A = mmu->read_byte(HL++);
+            std::cout << "Byte read!";
             H = (HL >> 8) & 0xFF;
             L = HL & 0xFF;
             break;

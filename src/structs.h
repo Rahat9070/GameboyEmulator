@@ -2,11 +2,13 @@
 
 #include <cstdint>
 
-enum GBColour : uint8_t {
-    GB_BLACK = 0,
-    GB_DARK_GRAY = 1,
-    GB_LIGHT_GRAY = 2,
-    GB_WHITE = 3
+struct Colour {
+    union {
+        struct {
+            uint8_t r, g, b, a;
+        };
+        uint8_t colours[4];
+    };
 };
 
 struct Sprite {
@@ -14,7 +16,7 @@ struct Sprite {
     int y;
     int x;
     uint8_t tile;
-    GBColour* colourPalette;
+    Colour *colourPalette;
     uint8_t paletteNumber : 1;
     uint8_t xFlip : 1;
     uint8_t yFlip : 1;

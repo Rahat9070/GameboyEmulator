@@ -70,9 +70,9 @@ void Renderer::check_framerate() {
 }
 
 void Renderer::draw(){
-    uint32_t* sdl_pixels;
-    for (int i = 0; i < 160 * 144; i++) {
-        sdl_pixels[i] = mmu->grayscale_palette[ppu->framebuffer[i]];
+    for (int i = 0; i < 144 * 160; i++) {
+        Colour colour = ppu->framebuffer[i];
+        std::copy(colour.colours, colour.colours + 4, view_pixels.begin() + i * 4);
     }
     SDL_UpdateTexture(texture, NULL, view_pixels.data(), gb_width * 2);
 }

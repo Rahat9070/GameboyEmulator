@@ -31,7 +31,7 @@ class PPU {
         uint8_t oam_interrupt = 0;
         uint8_t coincidence_interrupt = 0;
     
-        GBColour framebuffer[160 * 144];
+        Colour framebuffer[160 * 144];
         uint8_t background[32 * 32];
     
         int modeclock = 0;
@@ -39,7 +39,6 @@ class PPU {
         bool can_render = false;
     
         void step(int cycles);
-        void compare_ly_lyc();
         PPU(CPU *cpu, MMU *mmu);
         void render_scanline();
         void render_background(bool* rows);

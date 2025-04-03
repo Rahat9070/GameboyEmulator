@@ -33,12 +33,6 @@ uint8_t MMU::read_byte(uint16_t address) {
     if (debug_mode) {
         std::cout << "Reading from address: " << std::hex << address << std::endl;
     }
-    if (address == 0xff00) {
-        switch (memory[0xff00] & 0x30) {  // Mask `00110000` to check which SELECT
-            default:
-                return 0xFF;
-        }
-    }
 
     switch (address) {
         case 0xFF04: {
@@ -56,10 +50,7 @@ uint8_t MMU::read_byte(uint16_t address) {
     if (address < 0x100 && !rom_disabled) {
         return memory[address];
     }
-    if (address < 0x8000) {
-        return cartridge->MBC_read(address);
-    }
-    if (address >= 0xA000 && address <= 0xBFFF) {
+    if (address < 0x8000 || (address >= 0xA000 && address <= 0xBFFF)) {
         return cartridge->MBC_read(address);
     }
 
@@ -165,14 +156,11 @@ void MMU::updateSprite(uint16_t addres, uint8_t value) {
     }
 }
 
-void MMU::updatePalette(GBColour *palette, uint8_t value) {
-    GBColour palette_colours[4] = {
-        GB_WHITE, GB_LIGHT_GRAY, GB_DARK_GRAY, GB_BLACK
-    };
-    palette[0] = palette_colours[value & 0x03];
-    palette[1] = palette_colours[(value >> 2) & 0x03];
-    palette[2] = palette_colours[(value >> 4) & 0x03];
-    palette[3] = palette_colours[(value >> 6) & 0x03];
+void MMU::updatePalette(Colour *palette, uint8_t value) {
+    palette[0] = palette_colours[value & 0x3];
+    palette[1] = palette_colours[(value >> 2) & 0x3];
+    palette[2] = palette_colours[(value >> 4) & 0x3];
+    palette[3] = palette_colours[(value >> 6) & 0x3];
 }
 
 void MMU::info() {
