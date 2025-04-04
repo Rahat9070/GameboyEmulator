@@ -79,10 +79,8 @@ int main(int argc, char* argv[]) {
                 cycles = 4;
             } else {
                 uint8_t opcode = mmu.read_byte(cpu.PC);
-                std::cout << "PC: " << std::hex << (int)cpu.PC << "\n" << "Opcode: " << std::hex << (int)opcode << std::endl;
                 if (debug) {
-                    std::cout << "PC: " << std::hex << (int)cpu.PC << "\n"
-                              << "Opcode: " << std::hex << (int)opcode << std::endl;
+                    std::cout << "Opcode: " << std::hex << (int)opcode << std::endl;
                 }
 
                 if (!mmu.trigger_halted) {
