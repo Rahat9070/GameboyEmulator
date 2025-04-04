@@ -996,10 +996,7 @@ void CPU::executeInstruction(uint8_t opcode) {
             break;
         } case 0xC0: { // RET NZ
             if (!getZeroFlag()) {
-                uint8_t low = mmu->read_byte(SP); 
-                uint8_t high = mmu->read_byte(SP + 1);
-                PC = (high << 8) | low;
-                SP += 2;
+                PC = mmu->read_byte(SP) | (mmu->read_byte(SP + 1) << 8);
             }
             break;
         } case 0xC1: { // POP BC
@@ -1025,15 +1022,16 @@ void CPU::executeInstruction(uint8_t opcode) {
             PC += 2;
             if (!getZeroFlag()) {
                 SP -= 2;
-                mmu->write_byte(SP, PC & 0xFF);
-                mmu->write_byte(SP + 1, (PC >> 8)); 
+                mmu->write_byte(SP, (uint8_t)(PC & 0x00ff));
+                mmu->write_byte(SP + 1, (uint8_t)((PC & 0xff00) >> 8));
                 PC = address;
             } 
             break;
         } case 0xC5: { // PUSH BC
+            uint16_t BC = (B << 8) | C;
             SP -= 2;
-            mmu->write_byte(SP, C);
-            mmu->write_byte(SP + 1, B);
+            mmu->write_byte(SP, (uint8_t)(BC & 0x00ff));
+            mmu->write_byte(SP + 1, (uint8_t)((BC & 0xff00) >> 8));
             break;
         } case 0xC6: { // ADD A, n8
             uint8_t value = mmu->read_byte(PC++);
@@ -1050,17 +1048,11 @@ void CPU::executeInstruction(uint8_t opcode) {
             break;
         } case 0xC8: { // RET Z
             if (getZeroFlag()) {
-                uint8_t low = mmu->read_byte(SP); 
-                uint8_t high = mmu->read_byte(SP + 1);
-                PC = (high << 8) | low;
-                SP += 2;
+                PC = mmu->read_byte(SP) | (mmu->read_byte(SP + 1) << 8);
             }
             break;
         } case 0xC9: { // RET
-            uint8_t low = mmu->read_byte(SP); 
-            uint8_t high = mmu->read_byte(SP + 1);
-            PC = (high << 8) | low;
-            SP += 2;
+            PC = mmu->read_byte(SP) | (mmu->read_byte(SP + 1) << 8);
             break;
         } case 0xCA: { // JP Z, a16
             if (getZeroFlag()) {
@@ -1078,8 +1070,8 @@ void CPU::executeInstruction(uint8_t opcode) {
             PC += 2;
             if (getZeroFlag()) {
                 SP -= 2;
-                mmu->write_byte(SP, PC & 0xFF);
-                mmu->write_byte(SP + 1, (PC >> 8)); 
+                mmu->write_byte(SP, (uint8_t)(PC & 0x00ff));
+                mmu->write_byte(SP + 1, (uint8_t)((PC & 0xff00) >> 8));
                 PC = address;
             } 
             break;
@@ -1087,8 +1079,8 @@ void CPU::executeInstruction(uint8_t opcode) {
             uint16_t address = mmu->read_byte(PC) | (mmu->read_byte(PC + 1) << 8);
             PC += 2;
             SP -= 2;
-            mmu->write_byte(SP, PC & 0xFF);
-            mmu->write_byte(SP + 1, (PC >> 8)); 
+            mmu->write_byte(SP, (uint8_t)(PC & 0x00ff));
+            mmu->write_byte(SP + 1, (uint8_t)((PC & 0xff00) >> 8));
             PC = address;
             break;
         } case 0xCE: { // ADC A, n8
@@ -1106,10 +1098,7 @@ void CPU::executeInstruction(uint8_t opcode) {
             break;
         } case 0xD0: { // RET NC
             if (!getCarryFlag()) {
-                uint8_t low = mmu->read_byte(SP); 
-                uint8_t high = mmu->read_byte(SP + 1);
-                PC = (high << 8) | low;
-                SP += 2;
+                PC = mmu->read_byte(SP) | (mmu->read_byte(SP + 1) << 8);
             }
             break;
         } case 0xD1: { // POP DE
@@ -1131,16 +1120,17 @@ void CPU::executeInstruction(uint8_t opcode) {
             PC += 2;
             if (!getCarryFlag()) { 
                 SP -= 2;
-                mmu->write_byte(SP, PC & 0xFF);
-                mmu->write_byte(SP + 1, (PC >> 8)); 
+                mmu->write_byte(SP, (uint8_t)(PC & 0x00ff));
+                mmu->write_byte(SP + 1, (uint8_t)((PC & 0xff00) >> 8));
                 PC = address;
                 break;
             } 
             break;
         } case 0xD5: { // PUSH DE
+            uint16_t DE = (D << 8) | E;
             SP -= 2;
-            mmu->write_byte(SP, E);
-            mmu->write_byte(SP + 1, D);
+            mmu->write_byte(SP, (uint8_t)(DE & 0x00ff));
+            mmu->write_byte(SP + 1, (uint8_t)((DE & 0xff00) >> 8));
             break;
         } case 0xD6: { // SUB A, n8
             uint8_t value = mmu->read_byte(PC++);
@@ -1157,17 +1147,12 @@ void CPU::executeInstruction(uint8_t opcode) {
             break;
         } case 0xD8: { // RET C
             if (getCarryFlag()) {
-                uint8_t low = mmu->read_byte(SP); 
-                uint8_t high = mmu->read_byte(SP + 1);
-                PC = (high << 8) | low;
-                SP += 2;
+                PC = mmu->read_byte(SP) | (mmu->read_byte(SP + 1) << 8);
             }
             break;
         } case 0xD9: { // RETI
             IME = true;
-            uint8_t low = mmu->read_byte(SP); 
-            uint8_t high = mmu->read_byte(SP + 1);
-            PC = (high << 8) | low;
+            PC = mmu->read_byte(SP) | (mmu->read_byte(SP + 1) << 8);
             SP += 2;
             break;
         } case 0xDA: { // JP C, a16
@@ -1182,8 +1167,8 @@ void CPU::executeInstruction(uint8_t opcode) {
             PC += 2;
             if (getCarryFlag()) { 
                 SP -= 2;
-                mmu->write_byte(SP, PC & 0xFF);
-                mmu->write_byte(SP + 1, (PC >> 8)); 
+                mmu->write_byte(SP, (uint8_t)(PC & 0x00ff));
+                mmu->write_byte(SP + 1, (uint8_t)((PC & 0xff00) >> 8));
                 PC = address;
                 break;
             } 
@@ -1215,9 +1200,10 @@ void CPU::executeInstruction(uint8_t opcode) {
             mmu->write_byte(0xFF00 + C, A);
             break;
         } case 0xE5: { // PUSH HL
+            uint16_t HL = (H << 8) | L;
             SP -= 2;
-            mmu->write_byte(SP, L);
-            mmu->write_byte(SP + 1, H);
+            mmu->write_byte(SP, (uint8_t)(HL & 0x00ff));
+            mmu->write_byte(SP + 1, (uint8_t)((HL & 0xff00) >> 8));
             break;
         } case 0xE6: { // AND A, n8
             A &= mmu->read_byte(PC++);
@@ -1277,9 +1263,10 @@ void CPU::executeInstruction(uint8_t opcode) {
             IME = false;
             break;
         } case 0xF5: { // PUSH AF
+            uint16_t AF = (A << 8) | F;
             SP -= 2;
-            mmu->write_byte(SP, F);
-            mmu->write_byte(SP + 1, A);
+            mmu->write_byte(SP, (uint8_t)(AF & 0x00ff));
+            mmu->write_byte(SP + 1, (uint8_t)((AF & 0xff00) >> 8));
             break;
         } case 0xF6: { // OR A, n8
             A |= mmu->read_byte(PC++);
